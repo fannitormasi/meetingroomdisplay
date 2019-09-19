@@ -1,0 +1,15 @@
+table {
+    font-family: "Lucida Sans";
+    font-size: 11px;
+    text-align: center;
+    border-radius: 20px!important;
+}
+
+thead {
+    background-color: #5ca7a6;
+    color: white;
+}
+
+tbody tr:hover {
+    background-color: whitesmoke;
+}
