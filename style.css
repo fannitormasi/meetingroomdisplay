@@ -6,10 +6,70 @@ table {
 }
 
 thead {
-    background-color: #5ca7a6;
+    background-color: darkgrey;
     color: white;
 }
 
-tbody tr:hover {
+tbody {
     background-color: whitesmoke;
+}
+
+tbody tr:hover {
+    background-color: rgb(240,240,240);
+}
+
+.table-container {
+    min-height: 85px;
+}
+.occupied {
+    background-color: rgba(167,48,67,0.35);
+}
+
+.free {
+    background-color: rgba(92,167,166,0.35);
+}
+
+.countdown {
+    font-family: monospace;
+    font-size: 25px;
+
+}
+/*
+
+.all-room {
+    background-color: rgba(173,173,165,0.82);
+    background-image: url("pic/background.jpg");
+}
+*/
+
+.background {
+    opacity: 0.2;
+    position: fixed;
+    left: 0;
+    top: -180px;
+    z-index: -1;
+}
+
+body {
+    z-index: 1000;
+}
+
+.next-meeting {
+    position: relative;
+    font-family: monospace;
+    min-height: 300px;
+    color: white;
+    top: 60px;
+    font-size: 35px;
+}
+
+.current-date {
+    font-family: monospace;
+    color: white;
+    font-size: 25px;
+}
+
+.next-meeting-p {
+    font-size: 20px!important;
+    font-weight: bold;
 }

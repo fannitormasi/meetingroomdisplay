@@ -7,23 +7,30 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="colour-div">
 <div class="container">
-    <div class="w-25 mt-3">
-        <select class="form-control room-select">
-            <option value="all" selected>Minden tárgyaló</option>
-            <option value="aa-fejlesztoitargyalo">AA - Fejlesztői tárgyaló</option>
-            <option value="kistargyalo">Kis tárgyaló</option>
-            <option value="aa-ablakostargyalo">AA - Ablakos Tárgyaló</option>
-            <option value="exchangecontrollrecord">ExchangeControllRecord</option>
-        </select>
+    <div>
+        <img class="background" src="pic/background.jpg" alt="">
+
+        <div class="current-date text-right mt-5"></div>
+        <div class="next-meeting text-right mt-5"></div>
+        <div class="countdown text-center m-5 "></div>
+
+        <div class="table-container"></div>
+
+        <div class="one-meeting-table w-25"></div>
+
+
+        <div class="w-25 mt-3">
+            <select class="form-control room-select">
+                <option value="all">Minden tárgyaló</option>
+                <option value="aa-fejlesztoitargyalo">AA - Fejlesztői tárgyaló</option>
+                <option value="kistargyalo">Kis tárgyaló</option>
+                <option value="aa-ablakostargyalo">AA - Ablakos Tárgyaló</option>
+            </select>
+        </div>
+
     </div>
-
-    <div class="current-date text-right my-3"></div>
-
-    <div class="table-container font-weight-normal"></div>
-
-    <div class="one-meeting-table w-25"></div>
 </div>
 </body>
 
