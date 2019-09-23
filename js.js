@@ -2,18 +2,21 @@ fetchData();
 setInterval(fetchData, 1000);
 showCurrentTime()
 setInterval(showCurrentTime, 1000);
-let occupied;
+let occupied = false;
 let allData;
+let noMeetingToday = true;
 
 let select = document.querySelector('.room-select');
-let oneMeetingDiv = document.querySelector('.one-meeting-table');
 select.addEventListener('click', (event) => {
     let value = event.target.value;
     history.pushState(value, value, '#location=' + value);
-    oneMeetingDiv.innerHTML = '';
-    document.querySelector('.next-meeting').innerHTML = '';
+    document.querySelector('.one-meeting-table').innerHTML = '';
     document.querySelector('.countdown').innerHTML = '';
-    document.querySelector('body').setAttribute('class','colour-div free')
+    document.querySelector('body').setAttribute('class', 'colour-div free');
+    document.querySelector('.condition').innerHTML = '';
+    document.querySelector('.next-meeting').innerHTML = '';
+    document.querySelector('.room-name').innerHTML = '';
+    noMeetingToday = true;
     fetchData();
 });
 
@@ -41,13 +44,6 @@ function showTable(jsonData) {
     let param = url.split('location=')[1];
     let keys = Object.keys(jsonData[0]);
 
-    if (occupied) {
-        showCurrentMeeting(jsonData, param);
-    } else {
-        showNextMeeting(jsonData, param);
-    }
-
-
     let container = document.querySelector('.table-container');
     container.innerHTML = '';
     let table = document.createElement('table');
@@ -67,29 +63,35 @@ function showTable(jsonData) {
         //show only what meeting is happening later
         if (new Date(jsonData[i].End) < currentTime) {
             continue;
-        } else if (new Date(jsonData[i].End) > currentTime) {
+        } else {
             trBody = document.createElement('tr');
             if (param === 'all' || param === undefined) {
-                fillTableWithData(jsonData, keys, trBody, i);
+                noMeetingToday = false;
                 document.querySelector('body').setAttribute('class', 'colour-div all-room');
-                document.querySelector('.countdown').innerHTML = '';
+                document.querySelector('.condition').innerHTML = 'ALL ROOMS';
+                fillTableWithData(jsonData, keys, trBody, i);
                 tbody.appendChild(trBody);
             } else if (defineUrlParam(jsonData[i].Location) === param) {
+                noMeetingToday = false;
+                document.querySelector('.room-name').innerHTML = jsonData[i].Location.toUpperCase();
                 fillTableWithData(jsonData, keys, trBody, i);
                 tbody.appendChild(trBody);
-            }
-        } else {
-            document.querySelector('body').setAttribute('class', 'colour-div free');
-            noMeetingToday();
-        }
-
-        colourIfOccupied(jsonData, currentTime, param);
-
-        /*        if (!occupied) {
-                    countDownUntilNextMeeting(jsonData, currentTime);
+                if (occupied) {
+                    showCurrentMeeting(jsonData, param);
+                    document.querySelector('.condition').innerHTML = 'OCCUPIED';
+                    countDownUntilTheEndOfCurrentMeeting(jsonData, currentTime, param);
                 } else {
-                    countDownUntilTheEndOfCurrentMeeting(jsonData, currentTime);
-                }*/
+                    showNextMeeting(jsonData, param);
+                    document.querySelector('.condition').innerHTML = 'AVAILABLE';
+                }
+            }
+        }
+        if (noMeetingToday) {
+            document.querySelector('.condition').innerHTML = 'AVAILABLE';
+            document.querySelector('.next-meeting').innerHTML = 'No scheduled meeting for today!';
+            document.querySelector('.room-name').innerHTML = '';
+        }
+        colourIfOccupied(jsonData, currentTime, param);
 
         thead.appendChild(trHead);
         table.appendChild(thead);
@@ -154,36 +156,6 @@ function fillTableWithData(data, header, parentElement, i) {
     }
 }
 
-function showOneMeeting(data, i) {
-    let oneMeetingData = data[i];
-
-    let div = document.querySelector('.one-meeting-table');
-    div.innerHTML = '';
-
-    let table = document.createElement('table');
-    table.setAttribute('class', 'table border')
-    let thead = document.createElement('thead');
-    let tbody = document.createElement('tbody');
-    thead.innerHTML = oneMeetingData.Location;
-    table.appendChild(thead);
-    table.appendChild(tbody);
-    div.appendChild(table);
-
-    console.log(oneMeetingData);
-
-    let trOrganizer = document.createElement('tr');
-    trOrganizer.innerHTML = 'Organizer: ' + oneMeetingData.Organizer;
-    tbody.appendChild(trOrganizer);
-
-    let trStart = document.createElement('tr');
-    trStart.innerHTML = 'Start time: ' + oneMeetingData.Start;
-    tbody.appendChild(trStart);
-
-    let trEnd = document.createElement('tr');
-    trEnd.innerHTML = 'End time: ' + oneMeetingData.End;
-    tbody.appendChild(trEnd);
-}
-
 function sortDataByDate(data) {
     let temp;
     for (let i = 0; i < data.length; i++) {
@@ -215,117 +187,41 @@ function colourIfOccupied(data, currentTime, room) {
                 occupied = false;
             }
         } else {
-            //body.setAttribute('class', 'colour-div free')
             occupied = false;
         }
     }
 }
 
-function getNextMeeting(data, currentTime) {
+function getNextMeeting(data, currentTime, room) {
     let nextMeeting;
     for (let i = 0; i < data.length; i++) {
-        if (new Date(data[i].Start).getTime() > currentTime.getTime()) {
-            nextMeeting = data[i];
-            return nextMeeting;
-            break;
-        } else {
-            continue;
+        if (defineUrlParam(data[i].Location) === room) {
+            if (new Date(data[i].Start).getTime() > currentTime.getTime()) {
+                nextMeeting = data[i];
+                break;
+            } else {
+                continue;
+            }
         }
     }
-    return 'AVAILABLE';
+    return nextMeeting;
 }
 
-function getCurrentMeeting(data, currentTime) {
+function getCurrentMeeting(data, currentTime, room) {
     let currentMeeting;
     for (let i = 0; i < data.length; i++) {
-        if ((currentTime >= new Date(data[i].Start).getTime() && currentTime <= new Date(data[i].End).getTime())) {
-            currentMeeting = data[i];
-            return currentMeeting;
-            break;
-        } else {
-            continue;
+        if (defineUrlParam(data[i].Location) === room) {
+            if ((currentTime >= new Date(data[i].Start).getTime() && currentTime <= new Date(data[i].End).getTime())) {
+                currentMeeting = data[i];
+                break;
+            } else {
+                continue;
+            }
         }
     }
-    return 'AVAILABLE';
+    return currentMeeting;
 }
 
-function noMeetingToday() {
-    let divCountDown = document.querySelector('.countdown');
-    divCountDown.innerHTML = 'No meeting today!'
-}
-
-/*
-function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
-    let divCountDown = document.querySelector('.countdown');
-    divCountDown.innerHTML = '';
-    let currentMeeting = getCurrentMeeting(data, currentTime);
-    if (currentMeeting !== null){
-    let currentMeetingEnd = new Date(currentMeeting.End);
-    let diff = (currentMeetingEnd.getTime() - currentTime.getTime()) / 1000;
-    let hourText = 'hour';
-    let hours;
-    let minutesText = 'minutes';
-
-    let minutes = Math.ceil(diff / 60);
-
-    if (minutes > 59) {
-        hours = Math.floor(minutes / 60);
-        if (hours > 1) {
-            hourText = 'hours';
-        }
-        minutes = minutes % 60;
-        if (minutes === 1) {
-            minutesText = 'minute';
-        }
-    } else {
-        hours = 0;
-    }
-
-    divCountDown.innerHTML = hours.toLocaleString() + ' ' + hourText + ' ' + minutes.toLocaleString() + ' ' + minutesText + ' until the end of current meeting.';
-    let p = document.createElement('p');
-    p.innerHTML = 'Organizer: ' + currentMeeting.Organizer;
-    p.setAttribute('class', '')
-    divCountDown.appendChild(p);
-    } else {
-        divCountDown.innerHTML = 'No meeting today!';
-    }
-}
-*/
-
-function countDownUntilNextMeeting(data, currentTime) {
-    let divCountDown = document.querySelector('.countdown');
-    let nextMeeting = getNextMeeting(data, currentTime);
-    if (nextMeeting !== null){
-    let nextMeetingStart = new Date(nextMeeting.Start);
-    let diff = (nextMeetingStart.getTime() - currentTime.getTime()) / 1000;
-    let hourText = 'hour';
-    let hours;
-    let minutesText = 'minutes';
-
-    let minutes = Math.ceil(diff / 60);
-
-    if (minutes > 59) {
-        hours = Math.floor(minutes / 60);
-        if (hours > 1) {
-            hourText = 'hours';
-        }
-        minutes = minutes % 60;
-        if (minutes === 1) {
-            minutesText = 'minute';
-        }
-    } else {
-        hours = 0;
-    }
-
-    divCountDown.innerHTML = hours.toLocaleString() + ' ' + hourText + ' ' + minutes.toLocaleString() + ' ' + minutesText + ' until the next meeting.';
-    let p = document.createElement('p');
-    p.innerHTML = 'Organizer: ' + nextMeeting.Organizer;
-    p.setAttribute('class', '')
-    divCountDown.appendChild(p);
-    } else {
-        divCountDown.innerHTML = 'No meetings today!'
-    }
-}
 
 function createHeader(data, parent) {
     for (let i = 0; i < Object.keys(data[0]).length; i++) {
@@ -336,54 +232,140 @@ function createHeader(data, parent) {
 }
 
 function showNextMeeting(data, room) {
-    let nextMeeting = getNextMeeting(data, new Date());
-    let div = document.querySelector('.next-meeting');
-    div.innerHTML = '';
-    if (nextMeeting === 'AVAILABLE') {
-        div.innerHTML = 'AVAILABLE';
-    }
-    if (defineUrlParam(nextMeeting.Location) === room) {
-                let h1 = document.createElement('h1');
-        h1.innerHTML = 'NEXT MEETING'
+    let nextMeeting = getNextMeeting(data, new Date(), room);
+    let divMeeting = document.querySelector('.next-meeting');
+    divMeeting.innerHTML = '';
+    if (nextMeeting === undefined) {
+        return;
+    } else if (defineUrlParam(nextMeeting.Location) === room) {
+        let title = document.createElement('div');
+        title.innerHTML = 'NEXT MEETING:'
         let pTime = document.createElement('p');
         pTime.innerHTML = new Date(nextMeeting.Start).toLocaleTimeString() + ' - ' + new Date(nextMeeting.End).toLocaleTimeString();
         pTime.setAttribute('class', 'next-meeting-p');
-/*        let pEnd = document.createElement('p');
-        pEnd.innerHTML = 'End: ' + new Date(nextMeeting.End).toLocaleTimeString();
-        pEnd.setAttribute('class', 'next-meeting-p');*/
+
         let pOrg = document.createElement('p');
         pOrg.innerHTML = 'Organizer: ' + nextMeeting.Organizer;
         pOrg.setAttribute('class', 'next-meeting-p');
 
-        div.appendChild(h1)
-        div.appendChild(pTime)
-        div.appendChild(pOrg)
+        divMeeting.appendChild(title)
+        divMeeting.appendChild(pTime)
+        divMeeting.appendChild(pOrg)
     }
 }
 
 function showCurrentMeeting(data, room) {
-    let currentMeeting = getCurrentMeeting(data, new Date());
-    console.log(currentMeeting);
+    let currentMeeting = getCurrentMeeting(data, new Date(), room);
     let div = document.querySelector('.next-meeting');
     div.innerHTML = '';
-    if (currentMeeting === 'AVAILABLE') {
-        div.innerHTML = 'AVAILABLE';
-    }
+
     if (defineUrlParam(currentMeeting.Location) === room) {
-        let h1 = document.createElement('h1');
-        h1.innerHTML = 'CURRENT MEETING'
+        let title = document.createElement('div');
+        title.innerHTML = 'CURRENT MEETING:'
         let pTime = document.createElement('p');
         pTime.innerHTML = new Date(currentMeeting.Start).toLocaleTimeString() + ' - ' + new Date(currentMeeting.End).toLocaleTimeString();
         pTime.setAttribute('class', 'next-meeting-p');
-        /*        let pEnd = document.createElement('p');
-                pEnd.innerHTML = 'End: ' + new Date(nextMeeting.End).toLocaleTimeString();
-                pEnd.setAttribute('class', 'next-meeting-p');*/
+
         let pOrg = document.createElement('p');
         pOrg.innerHTML = 'Organizer: ' + currentMeeting.Organizer;
         pOrg.setAttribute('class', 'next-meeting-p');
 
-        div.appendChild(h1)
+        div.appendChild(title)
         div.appendChild(pTime)
         div.appendChild(pOrg)
     }
 }
+
+function showOneMeeting(data, i) {
+    let oneMeetingData = data[i];
+
+    let div = document.querySelector('.one-meeting-table');
+    div.innerHTML = '';
+
+    let table = document.createElement('table');
+    table.setAttribute('class', 'table border')
+    let thead = document.createElement('thead');
+    let tbody = document.createElement('tbody');
+    thead.innerHTML = oneMeetingData.Location;
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    div.appendChild(table);
+
+    let trOrganizer = document.createElement('tr');
+    trOrganizer.innerHTML = 'Organizer: ' + oneMeetingData.Organizer;
+    tbody.appendChild(trOrganizer);
+
+    let trStart = document.createElement('tr');
+    trStart.innerHTML = 'Start time: ' + oneMeetingData.Start;
+    tbody.appendChild(trStart);
+
+    let trEnd = document.createElement('tr');
+    trEnd.innerHTML = 'End time: ' + oneMeetingData.End;
+    tbody.appendChild(trEnd);
+}
+
+function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
+    let divCountDown = document.querySelector('.countdown');
+    divCountDown.innerHTML = '';
+    let currentMeeting = getCurrentMeeting(data, currentTime, room);
+    let currentMeetingEnd = new Date(currentMeeting.End);
+    let diff = (currentMeetingEnd.getTime() - currentTime.getTime()) / 1000;
+    let hours;
+    let seconds;
+
+    let minutes = Math.floor(diff / 60);
+    seconds = Math.ceil(diff % 60);
+    if (seconds === 60) {
+        seconds = '0';
+    }
+
+    if (minutes > 58) {
+        hours = Math.floor(minutes / 60);
+        minutes = minutes % 60;
+    } else {
+        hours = 0;
+    }
+
+    divCountDown.innerHTML = hours.toLocaleString() + ' : ' + minutes.toLocaleString() + ' : ' + seconds.toLocaleString();
+
+    let div = document.createElement('div');
+    div.innerHTML = ' from current meeting';
+    div.setAttribute('class', 'countdown-text')
+    divCountDown.appendChild(div);
+}
+
+/*function countDownUntilNextMeeting(data, currentTime) {
+    let divCountDown = document.querySelector('.countdown');
+    let nextMeeting = getNextMeeting(data, currentTime);
+    if (nextMeeting !== null) {
+        let nextMeetingStart = new Date(nextMeeting.Start);
+        let diff = (nextMeetingStart.getTime() - currentTime.getTime()) / 1000;
+        let hourText = 'hour';
+        let hours;
+        let minutesText = 'minutes';
+
+        let minutes = Math.ceil(diff / 60);
+
+        if (minutes > 59) {
+            hours = Math.floor(minutes / 60);
+            if (hours > 1) {
+                hourText = 'hours';
+            }
+            minutes = minutes % 60;
+            if (minutes === 1) {
+                minutesText = 'minute';
+            }
+        } else {
+            hours = 0;
+        }
+
+        divCountDown.innerHTML = hours.toLocaleString() + ' ' + hourText + ' ' + minutes.toLocaleString() + ' ' + minutesText + ' until the next meeting.';
+        let p = document.createElement('p');
+        p.innerHTML = 'Organizer: ' + nextMeeting.Organizer;
+        p.setAttribute('class', '')
+        divCountDown.appendChild(p);
+    } else {
+        divCountDown.innerHTML = 'No meetings today!'
+    }
+}*/
+

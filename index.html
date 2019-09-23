@@ -6,31 +6,45 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
 </head>
-<body class="colour-div">
-<div class="container">
-    <div>
-        <img class="background" src="pic/background.jpg" alt="">
+<body class="colour-div width-max">
+<div class="main-container width-max">
+    <img class="background width-max" src="pic/background.jpg" alt="">
 
-        <div class="current-date text-right mt-5"></div>
-        <div class="next-meeting text-right mt-5"></div>
-        <div class="countdown text-center m-5 "></div>
-
-        <div class="table-container"></div>
-
-        <div class="one-meeting-table w-25"></div>
-
-
-        <div class="w-25 mt-3">
-            <select class="form-control room-select">
-                <option value="all">Minden tárgyaló</option>
-                <option value="aa-fejlesztoitargyalo">AA - Fejlesztői tárgyaló</option>
-                <option value="kistargyalo">Kis tárgyaló</option>
-                <option value="aa-ablakostargyalo">AA - Ablakos Tárgyaló</option>
-            </select>
-        </div>
-
+    <div class="left">
+        <div class="room-name "></div>
+        <div class="countdown text-center"></div>
     </div>
+
+    <div class="right">
+        <div class="current-date text-right"></div>
+        <div class="condition mt-5"></div>
+        <div class="next-meeting text-right mt-5"></div>
+    </div>
+
+
+    <div class="countdown text-center m-5 "></div>
+
+    <div class="table-container width-max"></div>
+
+    <div class="one-meeting-table w-25"></div>
+
+
+    <div class="w-25 mt-1">
+        <select class="form-control room-select">
+            <option selected value="all">Minden tárgyaló</option>
+            <option value="aa-fejlesztoitargyalo">AA - Fejlesztői tárgyaló</option>
+            <option value="kistargyalo">Kis tárgyaló</option>
+            <option value="aa-ablakostargyalo">AA - Ablakos Tárgyaló</option>
+            <option value="aa-projecttargyalo">AA - Project Tárgyaló</option>
+        </select>
+    </div>
+    <button type="button" class="btn my-button d-inline">
+        <a href="http://develop-server.emacc.local">Go back</a>
+    </button>
+
+
 </div>
 </body>
 

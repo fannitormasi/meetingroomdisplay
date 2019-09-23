@@ -1,8 +1,12 @@
+.width-max {
+    max-width: 800px;
+}
+
 table {
     font-family: "Lucida Sans";
     font-size: 11px;
     text-align: center;
-    border-radius: 20px!important;
+    border-radius: 20px !important;
 }
 
 thead {
@@ -15,61 +19,90 @@ tbody {
 }
 
 tbody tr:hover {
-    background-color: rgb(240,240,240);
+    background-color: rgb(240, 240, 240);
 }
 
-.table-container {
-    min-height: 85px;
-}
 .occupied {
-    background-color: rgba(167,48,67,0.35);
+    background-color: rgba(167, 48, 67, 0.65);
 }
 
 .free {
-    background-color: rgba(92,167,166,0.35);
+    background-color: rgba(45, 113, 26, 0.55);
 }
-
-.countdown {
-    font-family: monospace;
-    font-size: 25px;
-
-}
-/*
-
-.all-room {
-    background-color: rgba(173,173,165,0.82);
-    background-image: url("pic/background.jpg");
-}
-*/
 
 .background {
     opacity: 0.2;
     position: fixed;
-    left: 0;
-    top: -180px;
     z-index: -1;
+    height: 600px;
+    scroll-behavior: smooth;
 }
 
 body {
     z-index: 1000;
+    height: 480px;
+}
+
+.right {
+    background-color: rgba(26, 26, 26, 0.65);
+    width: 40%;
+    padding: 50px;
+    margin-left: 60%;
+    height: 480px;
+}
+
+.left {
+    width: 49%;
+    position: absolute;
+    color: white;
 }
 
 .next-meeting {
     position: relative;
     font-family: monospace;
-    min-height: 300px;
     color: white;
-    top: 60px;
-    font-size: 35px;
+    font-size: 24px;
+    line-height: 2;
 }
 
 .current-date {
-    font-family: monospace;
+    font-family: 'Montserrat', sans-serif;
     color: white;
-    font-size: 25px;
+    font-size: 20px;
 }
 
 .next-meeting-p {
-    font-size: 20px!important;
+    font-size: 14px !important;
     font-weight: bold;
+}
+
+.room-name {
+    text-align: center;
+    font-size: 30px;
+    margin: 50px 25px 25px 25px;
+    font-weight: bold;
+    font-family: 'Montserrat', sans-serif;
+    width: 400px;
+}
+
+.condition {
+    font-size: 30px;
+    color: white;
+    margin-left: 30px;
+    border-bottom: 2px solid white;
+    font-family: 'Montserrat', sans-serif;
+    text-align: center;
+}
+
+.countdown {
+    font-size: 65px;
+    margin-top: 100px;
+}
+
+.countdown-text {
+    font-size: 15px;
+}
+
+.my-button {
+    background-color: white;
 }
