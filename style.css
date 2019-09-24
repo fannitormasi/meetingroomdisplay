@@ -1,5 +1,9 @@
-.width-max {
-    max-width: 800px;
+::-webkit-scrollbar {
+    width: 0px;
+}
+
+.width-max, html {
+    max-width: 800px!important;
 }
 
 table {
@@ -23,11 +27,13 @@ tbody tr:hover {
 }
 
 .occupied {
+    width: 800px;
     background-color: rgba(167, 48, 67, 0.65);
 }
 
 .free {
     background-color: rgba(45, 113, 26, 0.55);
+    width: 800px;
 }
 
 .background {
@@ -35,12 +41,16 @@ tbody tr:hover {
     position: fixed;
     z-index: -1;
     height: 600px;
+    width: 800px;
     scroll-behavior: smooth;
 }
 
 body {
     z-index: 1000;
     height: 480px;
+    width: 800px!important;
+    overscroll-behavior-x: none;
+
 }
 
 .right {
@@ -57,12 +67,14 @@ body {
     color: white;
 }
 
-.next-meeting {
+.next-or-current-meeting {
     position: relative;
     font-family: monospace;
     color: white;
     font-size: 24px;
     line-height: 2;
+    margin: auto;
+    min-height: 145px;
 }
 
 .current-date {
@@ -82,7 +94,7 @@ body {
     margin: 50px 25px 25px 25px;
     font-weight: bold;
     font-family: 'Montserrat', sans-serif;
-    width: 400px;
+    width: 430px;
 }
 
 .condition {
@@ -96,7 +108,7 @@ body {
 
 .countdown {
     font-size: 65px;
-    margin-top: 100px;
+    margin-top: 30px;
 }
 
 .countdown-text {
@@ -105,4 +117,69 @@ body {
 
 .my-button {
     background-color: white;
+}
+
+.book-time-slider {
+    margin-top: 200px;
+    padding-left: 50px;
+    padding-right: 50px;
+    width: 100%; /* Width of the outside container */
+}
+
+.book-meeting {
+    border-radius: 20px;
+    margin-right: 110px;
+    margin-left: 110px;
+}
+
+
+/* The slider itself */
+.slider {
+    -webkit-appearance: searchfield;  /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    height: 5px; /* Specified height */
+    border-radius: 5px;
+    background: #d3d3d3; /* Grey background */
+    outline: darkgrey; /* Remove outline */
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .5s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    border-radius: 50%;
+    width: 15px; /* Set a specific slider handle width */
+    height: 15px; /* Slider handle height */
+    background: mediumturquoise; /* Green background */
+    cursor: grabbing /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #4CAF50; /* Green background */
+    cursor: grabbing; /* Cursor on hover */
+}
+
+.book-time-btn, .finish-meeting {
+    width: 150px!important;
+    background-color: white;
+    color: rgb(50,50,50);
+    border-radius: 25px;
+    margin-left: 70px;
+}
+
+.ad-hoc-meeting {
+    font-style: italic;
+    margin-top: 100px;
+    margin-left: 150px;
 }

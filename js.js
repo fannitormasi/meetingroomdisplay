@@ -1,21 +1,49 @@
+let x;
+let currentDateDiv = document.querySelector('.current-date');
+
 fetchData();
-setInterval(fetchData, 1000);
+x = setInterval(fetchData, 1000);
+
 showCurrentTime()
 setInterval(showCurrentTime, 1000);
 let occupied = false;
 let allData;
 let noMeetingToday = true;
 
+let roomNameDiv = document.querySelector('.room-name');
+let oneMeetingTable = document.querySelector('.one-meeting-table');
+let countDownDiv = document.querySelector('.countdown');
+let body = document.querySelector('body');
+let conditionDiv = document.querySelector('.condition');
+let nextOrCurrentMeetingDiv = document.querySelector('.next-or-current-meeting');
+let bookTimeSlider = document.querySelector('.book-time-slider');
+let bookTimeButton = document.querySelector('.book-time-btn');
 let select = document.querySelector('.room-select');
+let tableContainer = document.querySelector('.table-container');
+let finishMeetingButton = document.querySelector('.finish-meeting');
+let adHocMeetingDiv = document.querySelector('ad-hoc-meeting');
+
+if (finishMeetingButton !== null) {
+    finishMeetingButton.setAttribute('style', 'display: none!important');
+}
+
+if (adHocMeetingDiv !== null) {
+    adHocMeetingDiv.setAttribute('style', 'display: none!important');
+}
+if (bookTimeSlider !== null) {
+    bookTimeSlider.setAttribute('style', 'display: none!important');
+}
+
 select.addEventListener('click', (event) => {
     let value = event.target.value;
     history.pushState(value, value, '#location=' + value);
-    document.querySelector('.one-meeting-table').innerHTML = '';
-    document.querySelector('.countdown').innerHTML = '';
-    document.querySelector('body').setAttribute('class', 'colour-div free');
-    document.querySelector('.condition').innerHTML = '';
-    document.querySelector('.next-meeting').innerHTML = '';
-    document.querySelector('.room-name').innerHTML = '';
+    oneMeetingTable.innerHTML = '';
+    countDownDiv.innerHTML = '';
+    body.setAttribute('class', 'colour-div free');
+    conditionDiv.innerHTML = '';
+    nextOrCurrentMeetingDiv.innerHTML = '';
+    roomNameDiv.innerHTML = '';
+    bookTimeSlider.setAttribute('style', 'display: none!important');
     noMeetingToday = true;
     fetchData();
 });
@@ -44,8 +72,7 @@ function showTable(jsonData) {
     let param = url.split('location=')[1];
     let keys = Object.keys(jsonData[0]);
 
-    let container = document.querySelector('.table-container');
-    container.innerHTML = '';
+    tableContainer.innerHTML = '';
     let table = document.createElement('table');
     table.setAttribute('class', 'table border')
     let thead = document.createElement('thead');
@@ -67,37 +94,40 @@ function showTable(jsonData) {
             trBody = document.createElement('tr');
             if (param === 'all' || param === undefined) {
                 noMeetingToday = false;
-                document.querySelector('body').setAttribute('class', 'colour-div all-room');
-                document.querySelector('.condition').innerHTML = 'ALL ROOMS';
+                body.setAttribute('class', 'colour-div all-room');
+                conditionDiv.innerHTML = 'ALL ROOMS';
+                if (bookTimeButton !== null) {
+                    bookTimeButton.setAttribute('style', 'display: none!important');
+                } if (finishMeetingButton !== null) {
+                    finishMeetingButton.setAttribute('style', 'display: none!important');
+                }
                 fillTableWithData(jsonData, keys, trBody, i);
                 tbody.appendChild(trBody);
             } else if (defineUrlParam(jsonData[i].Location) === param) {
                 noMeetingToday = false;
-                document.querySelector('.room-name').innerHTML = jsonData[i].Location.toUpperCase();
+                roomNameDiv.innerHTML = jsonData[i].Location.toUpperCase();
                 fillTableWithData(jsonData, keys, trBody, i);
                 tbody.appendChild(trBody);
-                if (occupied) {
-                    showCurrentMeeting(jsonData, param);
-                    document.querySelector('.condition').innerHTML = 'OCCUPIED';
-                    countDownUntilTheEndOfCurrentMeeting(jsonData, currentTime, param);
-                } else {
-                    showNextMeeting(jsonData, param);
-                    document.querySelector('.condition').innerHTML = 'AVAILABLE';
-                }
             }
         }
-        if (noMeetingToday) {
-            document.querySelector('.condition').innerHTML = 'AVAILABLE';
-            document.querySelector('.next-meeting').innerHTML = 'No scheduled meeting for today!';
-            document.querySelector('.room-name').innerHTML = '';
-        }
-        colourIfOccupied(jsonData, currentTime, param);
-
-        thead.appendChild(trHead);
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        container.appendChild(table);
     }
+    if (noMeetingToday) {
+        conditionDiv.innerHTML = 'AVAILABLE';
+        body.setAttribute('class', 'colour-div free')
+        if (bookTimeButton !== null) {
+            bookTimeButton.setAttribute('style', 'display: block!important');
+        } if (finishMeetingButton !== null) {
+            finishMeetingButton.setAttribute('style', 'display: none!important');
+        }
+        nextOrCurrentMeetingDiv.innerHTML = 'No scheduled meeting for today!';
+        roomNameDiv.innerHTML = '';
+    }
+    colourIfOccupied(jsonData, currentTime, param);
+
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    tableContainer.appendChild(table);
 }
 
 function defineUrlParam(url) {
@@ -124,13 +154,11 @@ function showCurrentTime() {
     let currentDate = date.toLocaleDateString();
     let currentTime = date.toLocaleTimeString();
 
-    let divDate = document.querySelector('.current-date');
+    currentDateDiv.innerHTML = currentDate;
     let divTime = document.createElement('div');
-    divDate.innerHTML = currentDate;
     divTime.innerHTML = currentTime;
 
-    divDate.appendChild(divTime);
-
+    currentDateDiv.appendChild(divTime);
 }
 
 function parseTimestamp(jsonData) {
@@ -173,17 +201,31 @@ function sortDataByDate(data) {
 
 function colourIfOccupied(data, currentTime, room) {
     for (let i = 0; i < data.length; i++) {
-        let body = document.querySelector('body');
         if (defineUrlParam(data[i].Location) === room) {
             let startDate = new Date(data[i].Start);
             let endDate = new Date(data[i].End);
 
             if ((currentTime >= startDate && currentTime <= endDate)) {
                 body.setAttribute('class', 'colour-div occupied');
+                showCurrentMeeting(data, room);
+                conditionDiv.innerHTML = 'OCCUPIED';
+                if (bookTimeButton !== null) {
+                    bookTimeButton.setAttribute('style', 'display: none!important');
+                } if (finishMeetingButton !== null) {
+                    finishMeetingButton.setAttribute('style', 'display: none!important');
+                }
+                countDownUntilTheEndOfCurrentMeeting(data, currentTime, room);
                 occupied = true;
                 break;
             } else {
                 body.setAttribute('class', 'colour-div free')
+                showNextMeeting(data, room);
+                conditionDiv.innerHTML = 'AVAILABLE';
+                if (bookTimeButton !== null) {
+                    bookTimeButton.setAttribute('style', 'display: block!important');
+                } if (finishMeetingButton !== null) {
+                    finishMeetingButton.setAttribute('style', 'display: none!important');
+                }
                 occupied = false;
             }
         } else {
@@ -193,18 +235,18 @@ function colourIfOccupied(data, currentTime, room) {
 }
 
 function getNextMeeting(data, currentTime, room) {
-    let nextMeeting;
+    let nextMeetingData;
     for (let i = 0; i < data.length; i++) {
         if (defineUrlParam(data[i].Location) === room) {
             if (new Date(data[i].Start).getTime() > currentTime.getTime()) {
-                nextMeeting = data[i];
+                nextMeetingData = data[i];
                 break;
             } else {
                 continue;
             }
         }
     }
-    return nextMeeting;
+    return nextMeetingData;
 }
 
 function getCurrentMeeting(data, currentTime, room) {
@@ -232,55 +274,53 @@ function createHeader(data, parent) {
 }
 
 function showNextMeeting(data, room) {
-    let nextMeeting = getNextMeeting(data, new Date(), room);
-    let divMeeting = document.querySelector('.next-meeting');
-    divMeeting.innerHTML = '';
-    if (nextMeeting === undefined) {
+    let nextMeetingData = getNextMeeting(data, new Date(), room);
+    nextOrCurrentMeetingDiv.innerHTML = '';
+    if (nextMeetingData === undefined) {
         return;
-    } else if (defineUrlParam(nextMeeting.Location) === room) {
+    } else if (defineUrlParam(nextMeetingData.Location) === room) {
         let title = document.createElement('div');
         title.innerHTML = 'NEXT MEETING:'
         let pTime = document.createElement('p');
-        pTime.innerHTML = new Date(nextMeeting.Start).toLocaleTimeString() + ' - ' + new Date(nextMeeting.End).toLocaleTimeString();
+        pTime.innerHTML = new Date(nextMeetingData.Start).toLocaleTimeString() + ' - ' + new Date(nextMeetingData.End).toLocaleTimeString();
         pTime.setAttribute('class', 'next-meeting-p');
 
         let pOrg = document.createElement('p');
-        pOrg.innerHTML = 'Organizer: ' + nextMeeting.Organizer;
+        pOrg.innerHTML = 'Organizer: ' + nextMeetingData.Organizer;
         pOrg.setAttribute('class', 'next-meeting-p');
 
-        divMeeting.appendChild(title)
-        divMeeting.appendChild(pTime)
-        divMeeting.appendChild(pOrg)
+        nextOrCurrentMeetingDiv.appendChild(title)
+        nextOrCurrentMeetingDiv.appendChild(pTime)
+        nextOrCurrentMeetingDiv.appendChild(pOrg)
     }
 }
 
 function showCurrentMeeting(data, room) {
     let currentMeeting = getCurrentMeeting(data, new Date(), room);
-    let div = document.querySelector('.next-meeting');
-    div.innerHTML = '';
+    nextOrCurrentMeetingDiv.innerHTML = '';
+    if (currentMeeting !== undefined) {
+        if (defineUrlParam(currentMeeting.Location) === room) {
+            let title = document.createElement('div');
+            title.innerHTML = 'CURRENT MEETING:'
+            let pTime = document.createElement('p');
+            pTime.innerHTML = new Date(currentMeeting.Start).toLocaleTimeString() + ' - ' + new Date(currentMeeting.End).toLocaleTimeString();
+            pTime.setAttribute('class', 'next-meeting-p');
 
-    if (defineUrlParam(currentMeeting.Location) === room) {
-        let title = document.createElement('div');
-        title.innerHTML = 'CURRENT MEETING:'
-        let pTime = document.createElement('p');
-        pTime.innerHTML = new Date(currentMeeting.Start).toLocaleTimeString() + ' - ' + new Date(currentMeeting.End).toLocaleTimeString();
-        pTime.setAttribute('class', 'next-meeting-p');
+            let pOrg = document.createElement('p');
+            pOrg.innerHTML = 'Organizer: ' + currentMeeting.Organizer;
+            pOrg.setAttribute('class', 'next-meeting-p');
 
-        let pOrg = document.createElement('p');
-        pOrg.innerHTML = 'Organizer: ' + currentMeeting.Organizer;
-        pOrg.setAttribute('class', 'next-meeting-p');
-
-        div.appendChild(title)
-        div.appendChild(pTime)
-        div.appendChild(pOrg)
+            nextOrCurrentMeetingDiv.appendChild(title)
+            nextOrCurrentMeetingDiv.appendChild(pTime)
+            nextOrCurrentMeetingDiv.appendChild(pOrg)
+        }
     }
 }
 
 function showOneMeeting(data, i) {
     let oneMeetingData = data[i];
 
-    let div = document.querySelector('.one-meeting-table');
-    div.innerHTML = '';
+    oneMeetingTable.innerHTML = '';
 
     let table = document.createElement('table');
     table.setAttribute('class', 'table border')
@@ -289,7 +329,7 @@ function showOneMeeting(data, i) {
     thead.innerHTML = oneMeetingData.Location;
     table.appendChild(thead);
     table.appendChild(tbody);
-    div.appendChild(table);
+    oneMeetingTable.appendChild(table);
 
     let trOrganizer = document.createElement('tr');
     trOrganizer.innerHTML = 'Organizer: ' + oneMeetingData.Organizer;
@@ -305,37 +345,37 @@ function showOneMeeting(data, i) {
 }
 
 function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
-    let divCountDown = document.querySelector('.countdown');
-    divCountDown.innerHTML = '';
+    countDownDiv.innerHTML = '';
     let currentMeeting = getCurrentMeeting(data, currentTime, room);
-    let currentMeetingEnd = new Date(currentMeeting.End);
-    let diff = (currentMeetingEnd.getTime() - currentTime.getTime()) / 1000;
-    let hours;
-    let seconds;
+    if (currentMeeting !== undefined) {
+        let currentMeetingEnd = new Date(currentMeeting.End);
+        let diff = (currentMeetingEnd.getTime() - currentTime.getTime()) / 1000;
+        let hours;
+        let seconds;
 
-    let minutes = Math.floor(diff / 60);
-    seconds = Math.ceil(diff % 60);
-    if (seconds === 60) {
-        seconds = '0';
+        let minutes = Math.floor(diff / 60);
+        seconds = Math.ceil(diff % 60);
+        if (seconds === 60) {
+            seconds = '0';
+        }
+
+        if (minutes > 58) {
+            hours = Math.floor(minutes / 60);
+            minutes = minutes % 60;
+        } else {
+            hours = 0;
+        }
+
+        countDownDiv.innerHTML = hours.toLocaleString() + ' : ' + minutes.toLocaleString() + ' : ' + seconds.toLocaleString();
+
+        let div = document.createElement('div');
+        div.innerHTML = ' from current meeting';
+        div.setAttribute('class', 'countdown-text')
+        countDownDiv.appendChild(div);
     }
-
-    if (minutes > 58) {
-        hours = Math.floor(minutes / 60);
-        minutes = minutes % 60;
-    } else {
-        hours = 0;
-    }
-
-    divCountDown.innerHTML = hours.toLocaleString() + ' : ' + minutes.toLocaleString() + ' : ' + seconds.toLocaleString();
-
-    let div = document.createElement('div');
-    div.innerHTML = ' from current meeting';
-    div.setAttribute('class', 'countdown-text')
-    divCountDown.appendChild(div);
 }
 
 /*function countDownUntilNextMeeting(data, currentTime) {
-    let divCountDown = document.querySelector('.countdown');
     let nextMeeting = getNextMeeting(data, currentTime);
     if (nextMeeting !== null) {
         let nextMeetingStart = new Date(nextMeeting.Start);
@@ -359,13 +399,72 @@ function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
             hours = 0;
         }
 
-        divCountDown.innerHTML = hours.toLocaleString() + ' ' + hourText + ' ' + minutes.toLocaleString() + ' ' + minutesText + ' until the next meeting.';
+        countDownDiv.innerHTML = hours.toLocaleString() + ' ' + hourText + ' ' + minutes.toLocaleString() + ' ' + minutesText + ' until the next meeting.';
         let p = document.createElement('p');
         p.innerHTML = 'Organizer: ' + nextMeeting.Organizer;
         p.setAttribute('class', '')
-        divCountDown.appendChild(p);
+        countDownDiv.appendChild(p);
     } else {
-        divCountDown.innerHTML = 'No meetings today!'
+        countDownDiv.innerHTML = 'No meetings today!'
     }
 }*/
 
+let slider = document.getElementById("myRange");
+let output = document.getElementById("time-value");
+output.innerHTML = slider.value + ' minutes'; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+slider.oninput = function () {
+    if (this.value === '1') {
+        output.innerHTML = this.value + ' minute';
+    } else {
+        output.innerHTML = this.value + ' minutes';
+    }
+}
+
+function toggleHide() {
+    if (bookTimeSlider.getAttribute('style') === 'display: none!important') {
+        bookTimeSlider.setAttribute('style', 'display: block!important');
+    } else {
+        bookTimeSlider.setAttribute('style', 'display: none!important');
+    }
+}
+
+function bookTimeNow() {
+    clearInterval(x);
+    let output = document.getElementById('myRange');
+
+    conditionDiv.innerHTML = 'OCCUPIED';
+    body.setAttribute('class', 'colour-div occupied');
+    if (bookTimeButton !== null) {
+        bookTimeButton.setAttribute('style', 'display: none!important');
+    }
+    if (finishMeetingButton !== null) {
+        finishMeetingButton.setAttribute('style', 'display: block!important');
+    }
+    if (adHocMeetingDiv !== null) {
+        adHocMeetingDiv.setAttribute('style', 'display: block!important');
+    }
+    if (noMeetingToday) {
+        nextOrCurrentMeetingDiv.innerHTML = '';
+    }
+    console.log(noMeetingToday);
+    let currentDate = new Date()
+    let finishTime = new Date(currentDate.getTime() + output.value * 60000);
+
+    let div = document.querySelector('.ad-hoc-meeting');
+    div.innerHTML = 'AD HOC MEETING UNTIL';
+    countDownDiv.innerHTML = finishTime.toLocaleTimeString();
+
+    setTimeout(changeFetchLoop, output.value * 60000);
+    toggleHide();
+}
+
+function changeFetchLoop() {
+    x = setInterval(fetchData, 1000);
+}
+
+function finishMeeting() {
+    window.location.reload();
+    fetchData();
+}

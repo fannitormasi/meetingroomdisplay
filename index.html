@@ -9,18 +9,27 @@
     <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
 </head>
 <body class="colour-div width-max">
-<div class="main-container width-max">
+<div class="main-container">
     <img class="background width-max" src="pic/background.jpg" alt="">
 
     <div class="left">
         <div class="room-name "></div>
+        <div class="ad-hoc-meeting"></div>
         <div class="countdown text-center"></div>
+
+        <div class="book-time-slider">
+            <input type="range" min="1" max="60" value="15" class="slider" id="myRange">
+            <div id="time-value" class="text-center"></div>
+            <button onclick="bookTimeNow()" class="btn btn-light book-meeting mt-3">Book selected time</button>
+        </div>
     </div>
 
     <div class="right">
         <div class="current-date text-right"></div>
         <div class="condition mt-5"></div>
-        <div class="next-meeting text-right mt-5"></div>
+        <div class="next-or-current-meeting text-right mt-5 mb-4"></div>
+        <button type="button" onclick="toggleHide()" class="btn book-time-btn mt-4">Book now</button>
+        <button onclick="finishMeeting()" class="btn btn-light finish-meeting">Finish meeting</button>
     </div>
 
 
@@ -33,7 +42,7 @@
 
     <div class="w-25 mt-1">
         <select class="form-control room-select">
-            <option selected value="all">Minden tárgyaló</option>
+            <option value="all">Minden tárgyaló</option>
             <option value="aa-fejlesztoitargyalo">AA - Fejlesztői tárgyaló</option>
             <option value="kistargyalo">Kis tárgyaló</option>
             <option value="aa-ablakostargyalo">AA - Ablakos Tárgyaló</option>
@@ -43,8 +52,6 @@
     <button type="button" class="btn my-button d-inline">
         <a href="http://develop-server.emacc.local">Go back</a>
     </button>
-
-
 </div>
 </body>
 
