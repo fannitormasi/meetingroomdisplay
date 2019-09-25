@@ -64,6 +64,7 @@ function fetchData() {
 
 function showTable(jsonData) {
     let currentTime = new Date();
+    noMeetingToday = true;
 
     parseTimestamp(jsonData);
     sortDataByDate(jsonData);
@@ -113,7 +114,9 @@ function showTable(jsonData) {
     }
     if (noMeetingToday) {
         conditionDiv.innerHTML = 'AVAILABLE';
-        body.setAttribute('class', 'colour-div free')
+        body.setAttribute('class', 'colour-div free');
+        countDownDiv.innerHTML = '';
+        table.setAttribute('style', 'display:none');
         if (bookTimeButton !== null) {
             bookTimeButton.setAttribute('style', 'display: block!important');
         } if (finishMeetingButton !== null) {
@@ -433,31 +436,46 @@ function toggleHide() {
 function bookTimeNow() {
     clearInterval(x);
     let output = document.getElementById('myRange');
-
-    conditionDiv.innerHTML = 'OCCUPIED';
-    body.setAttribute('class', 'colour-div occupied');
-    if (bookTimeButton !== null) {
-        bookTimeButton.setAttribute('style', 'display: none!important');
-    }
-    if (finishMeetingButton !== null) {
-        finishMeetingButton.setAttribute('style', 'display: block!important');
-    }
-    if (adHocMeetingDiv !== null) {
-        adHocMeetingDiv.setAttribute('style', 'display: block!important');
-    }
-    if (noMeetingToday) {
-        nextOrCurrentMeetingDiv.innerHTML = '';
-    }
-    console.log(noMeetingToday);
+    let room = window.location.href.split('location=')[1];
     let currentDate = new Date()
     let finishTime = new Date(currentDate.getTime() + output.value * 60000);
+    let nextMeeting = getNextMeeting(allData, new Date(), room);
 
-    let div = document.querySelector('.ad-hoc-meeting');
-    div.innerHTML = 'AD HOC MEETING UNTIL';
-    countDownDiv.innerHTML = finishTime.toLocaleTimeString();
+    if (nextMeeting !== undefined && (finishTime.toLocaleTimeString() > new Date(nextMeeting.Start).toLocaleTimeString())) {
+        let modal = document.getElementById("myModal");
+        let span = document.getElementsByClassName("close")[0];
+        modal.style.display = "block";
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    } else {
+        conditionDiv.innerHTML = 'OCCUPIED';
+        body.setAttribute('class', 'colour-div occupied');
+        if (bookTimeButton !== null) {
+            bookTimeButton.setAttribute('style', 'display: none!important');
+        }
+        if (finishMeetingButton !== null) {
+            finishMeetingButton.setAttribute('style', 'display: block!important');
+        }
+        if (adHocMeetingDiv !== null) {
+            adHocMeetingDiv.setAttribute('style', 'display: block!important');
+        }
+        if (noMeetingToday) {
+            nextOrCurrentMeetingDiv.innerHTML = '';
+        }
 
-    setTimeout(changeFetchLoop, output.value * 60000);
-    toggleHide();
+        let div = document.querySelector('.ad-hoc-meeting');
+        div.innerHTML = 'AD HOC MEETING UNTIL';
+        countDownDiv.innerHTML = finishTime.toLocaleTimeString();
+
+        setTimeout(changeFetchLoop, output.value * 60000);
+        toggleHide();
+    }
 }
 
 function changeFetchLoop() {
