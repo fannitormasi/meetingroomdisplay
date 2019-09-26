@@ -27,15 +27,18 @@
                 <!-- Modal content -->
                 <div class="modal-content">
                     <span class="close">&times;</span>
-                    <p class="mb-0 mt-1">End cannot be later than the next meeting</p>
+                    <p class="mb-0 mt-1">Current meeting have to be finished before the upcoming starts</p>
                 </div>
 
             </div>
-
         </div>
+        <div onclick="showMeetingRooms()"><img class="meeting-room-selector" src="pic/location.png" alt=""></div>
+        <div onclick="showMeetings()"><img class="meetings" src="pic/calendar.png" alt=""></div>
+        <div onclick=""><img class="volume" src="pic/volume.png" alt=""></div>
     </div>
 
-    <div class="right">
+
+    <div class="right ">
         <div class="current-date text-right"></div>
         <div class="condition mt-5"></div>
         <div class="next-or-current-meeting text-right mt-5 mb-4"></div>
@@ -43,24 +46,19 @@
         <button onclick="finishMeeting()" class="btn btn-light finish-meeting">Finish meeting</button>
     </div>
 
-
-    <div class="table-container width-max"></div>
-
-    <div class="one-meeting-table w-25"></div>
-
-
-    <div class="w-25 mt-1">
-        <select class="form-control room-select">
-            <option value="all">Minden tárgyaló</option>
-            <option value="aa-fejlesztoitargyalo">AA - Fejlesztői tárgyaló</option>
-            <option value="kistargyalo">Kis tárgyaló</option>
-            <option value="aa-ablakostargyalo">AA - Ablakos Tárgyaló</option>
-            <option value="aa-projecttargyalo">AA - Project Tárgyaló</option>
-        </select>
+    <div id="tableModal">
+        <div class="table-container"></div>
     </div>
-    <button type="button" class="btn my-button d-inline">
-        <a href="http://develop-server.emacc.local">Go back</a>
-    </button>
+
+    <div id="roomSelectModal">
+        <div class="room-select">
+            <div class="room-box modal-content pt-4" id="all">All rooms</div>
+            <div class="room-box modal-content pt-4" id="aa-fejlesztoitargyalo">Fejlesztői tárgyaló</div>
+            <div class="room-box modal-content pt-4" id="kistargyalo">Kis tárgyaló</div>
+            <div class="room-box modal-content pt-4" id="aa-ablakostargyalo">Ablakos Tárgyaló</div>
+            <div class="room-box modal-content pt-4" id="aa-projecttargyalo">Project Tárgyaló</div>
+        </div>
+    </div>
 </div>
 </body>
 

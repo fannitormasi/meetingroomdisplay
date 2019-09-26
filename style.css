@@ -6,22 +6,67 @@
     max-width: 800px !important;
 }
 
-table {
+@keyframes slideIn {
+    from {
+        margin-top: 100%;
+        width: 100%;
+    }
+
+    to {
+        margin-top: 0%;
+        width: 100%;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+.table-container {
+    margin: auto;
+    border-radius: 20px;
     font-family: "Lucida Sans";
     font-size: 11px;
     text-align: center;
-    border-radius: 20px !important;
-    border-radius: 10px;
+    animation-duration: 1s;
+    animation-name: fadeIn;
+}
+
+table {
+    margin: auto;
+    width: 700px;
+    border-radius: 1em;
+    overflow: hidden;
 }
 
 thead {
-    background-color: lightgrey;
-    color: white;
+    background-color: whitesmoke;
+    color: black;
 }
 
 tbody {
     background-color: whitesmoke;
     color: rgb(100, 100, 100);
+}
+
+tr {
+    height: 40px;
 }
 
 tbody tr:hover {
@@ -34,12 +79,12 @@ tbody tr:hover {
 }
 
 .free {
-    background-color: rgba(45, 113, 26, 0.55);
+    background-color: rgba(45, 113, 26, 0.65);
     width: 800px;
 }
 
 .background {
-    opacity: 0.2;
+    opacity: 0.3;
     position: fixed;
     z-index: -1;
     min-height: 600px;
@@ -123,54 +168,51 @@ body {
 }
 
 .book-time-slider {
-    margin-top: 200px;
-    padding-left: 50px;
-    padding-right: 50px;
-    width: 100%; /* Width of the outside container */
+    margin-left: 70px;
+    margin-top: 120px;
+    animation-duration: 0.5s;
+    animation-name: fadeIn;
 }
 
 .book-meeting {
     border-radius: 20px;
-    margin-right: 110px;
-    margin-left: 110px;
+    margin-left: 80px;
 }
 
 
-/* The slider itself */
+
 .slider {
-    -webkit-appearance: searchfield; /* Override default CSS styles */
+    -webkit-appearance: searchfield;
     appearance: none;
-    width: 100%; /* Full-width */
-    height: 5px; /* Specified height */
+    width: 100%;
+    height: 5px;
     border-radius: 5px;
-    background: #d3d3d3; /* Grey background */
-    outline: darkgrey; /* Remove outline */
-    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-    -webkit-transition: .5s; /* 0.2 seconds transition on hover */
+    background: #d3d3d3;
+    outline: darkgrey;
+    opacity: 0.7;
+    -webkit-transition: .5s;
     transition: opacity .2s;
 }
 
-/* Mouse-over effects */
 .slider:hover {
-    opacity: 1; /* Fully shown on mouse-over */
+    opacity: 1;
 }
 
-/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
 .slider::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Override default look */
+    -webkit-appearance: none;
     appearance: none;
     border-radius: 50%;
-    width: 15px; /* Set a specific slider handle width */
-    height: 15px; /* Slider handle height */
-    background: mediumturquoise; /* Green background */
-    cursor: grabbing /* Cursor on hover */
+    width: 15px;
+    height: 15px;
+    background: teal;
+    cursor: grabbing
 }
 
 .slider::-moz-range-thumb {
-    width: 25px; /* Set a specific slider handle width */
-    height: 25px; /* Slider handle height */
-    background: #4CAF50; /* Green background */
-    cursor: grabbing; /* Cursor on hover */
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: grabbing;
 }
 
 .book-time-btn, .finish-meeting {
@@ -187,22 +229,20 @@ body {
     margin-left: 150px;
 }
 
-/* The Modal (background) */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0, 0, 0); /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
-/* Modal Content */
 .modal-content {
     background-color: #fefefe;
     margin: auto;
@@ -210,9 +250,11 @@ body {
     border: 1px solid #888;
     width: 80%;
     color: black;
+    animation-duration: 1s;
+    animation-name: fadeIn;
+    border-radius: 10px;
 }
 
-/* The Close Button */
 .close {
     position: absolute;
     left: 93%;
@@ -227,4 +269,59 @@ body {
     color: #000;
     text-decoration: none;
     cursor: pointer;
+}
+
+.meeting-room-selector {
+    position: absolute;
+    top: 425px;
+    left: 7%;
+    width: 30px;
+    height: 40px;
+}
+
+#roomSelectModal, #tableModal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 200px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.room-box {
+    height: 110px;
+    width: 110px;
+    float: left;
+    background-color: white;
+    margin-left: 40px;
+    color: rgb(54,54,54);
+    text-align: center;
+    text-align: center;
+    border-radius: 60px;
+    padding-top: 30px!important;
+    animation-duration: 1s;
+    animation-name: fadeIn;
+    font-family: "Lucida Sans";
+}
+
+.meetings, .volume {
+    position: absolute;
+    top: 425px;
+    left: 20%;
+    width: 40px;
+    height: 40px;
+}
+
+#all {
+    background-color: rgb(180,180,180);
+    color: white;
+}
+
+.volume {
+    left: 35%;
 }

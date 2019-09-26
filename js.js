@@ -24,26 +24,30 @@ let finishMeetingButton = document.querySelector('.finish-meeting');
 let adHocMeetingDiv = document.querySelector('ad-hoc-meeting');
 
 if (finishMeetingButton !== null) {
-    finishMeetingButton.setAttribute('style', 'display: none!important');
+    finishMeetingButton.style.display = "none";
 }
 
 if (adHocMeetingDiv !== null) {
-    adHocMeetingDiv.setAttribute('style', 'display: none!important');
+    adHocMeetingDiv.style.display = "none";
 }
 if (bookTimeSlider !== null) {
-    bookTimeSlider.setAttribute('style', 'display: none!important');
+    bookTimeSlider.style.display = "none";
 }
 
 select.addEventListener('click', (event) => {
-    let value = event.target.value;
+    let value;
+    if (event.target.id === 'roomSelectModal') {
+        return;
+    }  else {
+        value = event.target.id;
+    }
     history.pushState(value, value, '#location=' + value);
-    oneMeetingTable.innerHTML = '';
     countDownDiv.innerHTML = '';
     body.setAttribute('class', 'colour-div free');
     conditionDiv.innerHTML = '';
     nextOrCurrentMeetingDiv.innerHTML = '';
     roomNameDiv.innerHTML = '';
-    bookTimeSlider.setAttribute('style', 'display: none!important');
+    bookTimeSlider.style.display = "none";
     noMeetingToday = true;
     fetchData();
 });
@@ -75,7 +79,7 @@ function showTable(jsonData) {
 
     tableContainer.innerHTML = '';
     let table = document.createElement('table');
-    table.setAttribute('class', 'table border')
+    table.setAttribute('class', '')
     let thead = document.createElement('thead');
     let tbody = document.createElement('tbody');
     let trHead = document.createElement('tr');
@@ -98,9 +102,10 @@ function showTable(jsonData) {
                 body.setAttribute('class', 'colour-div all-room');
                 conditionDiv.innerHTML = 'ALL ROOMS';
                 if (bookTimeButton !== null) {
-                    bookTimeButton.setAttribute('style', 'display: none!important');
-                } if (finishMeetingButton !== null) {
-                    finishMeetingButton.setAttribute('style', 'display: none!important');
+                    bookTimeButton.style.display = "none";
+                }
+                if (finishMeetingButton !== null) {
+                    finishMeetingButton.style.display = "none";
                 }
                 fillTableWithData(jsonData, keys, trBody, i);
                 tbody.appendChild(trBody);
@@ -116,11 +121,12 @@ function showTable(jsonData) {
         conditionDiv.innerHTML = 'AVAILABLE';
         body.setAttribute('class', 'colour-div free');
         countDownDiv.innerHTML = '';
-        table.setAttribute('style', 'display:none');
+        table.style.display = "none";
         if (bookTimeButton !== null) {
-            bookTimeButton.setAttribute('style', 'display: block!important');
-        } if (finishMeetingButton !== null) {
-            finishMeetingButton.setAttribute('style', 'display: none!important');
+            bookTimeButton.style.display = "block";
+        }
+        if (finishMeetingButton !== null) {
+            finishMeetingButton.style.display = "none";
         }
         nextOrCurrentMeetingDiv.innerHTML = 'No scheduled meeting for today!';
         roomNameDiv.innerHTML = '';
@@ -178,6 +184,9 @@ function parseTimestamp(jsonData) {
 
 function fillTableWithData(data, header, parentElement, i) {
     for (let j = 0; j < header.length; j++) {
+        if (header[j] === 'Cancelled') {
+            continue;
+        }
         let th = document.createElement('th');
         th.innerHTML = data[i][header[j]];
         th.addEventListener('click', function () {
@@ -213,9 +222,10 @@ function colourIfOccupied(data, currentTime, room) {
                 showCurrentMeeting(data, room);
                 conditionDiv.innerHTML = 'OCCUPIED';
                 if (bookTimeButton !== null) {
-                    bookTimeButton.setAttribute('style', 'display: none!important');
-                } if (finishMeetingButton !== null) {
-                    finishMeetingButton.setAttribute('style', 'display: none!important');
+                    bookTimeButton.style.display = "none";
+                }
+                if (finishMeetingButton !== null) {
+                    finishMeetingButton.style.display = "none";
                 }
                 countDownUntilTheEndOfCurrentMeeting(data, currentTime, room);
                 occupied = true;
@@ -225,9 +235,10 @@ function colourIfOccupied(data, currentTime, room) {
                 showNextMeeting(data, room);
                 conditionDiv.innerHTML = 'AVAILABLE';
                 if (bookTimeButton !== null) {
-                    bookTimeButton.setAttribute('style', 'display: block!important');
-                } if (finishMeetingButton !== null) {
-                    finishMeetingButton.setAttribute('style', 'display: none!important');
+                    bookTimeButton.style.display = "block";
+                }
+                if (finishMeetingButton !== null) {
+                    finishMeetingButton.style.display = "none";
                 }
                 occupied = false;
             }
@@ -270,6 +281,9 @@ function getCurrentMeeting(data, currentTime, room) {
 
 function createHeader(data, parent) {
     for (let i = 0; i < Object.keys(data[0]).length; i++) {
+        if (Object.keys(data[0])[i] === 'Cancelled') {
+            continue
+        }
         let th = document.createElement('th');
         th.innerHTML = Object.keys(data[0])[i];
         parent.appendChild(th);
@@ -378,40 +392,6 @@ function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
     }
 }
 
-/*function countDownUntilNextMeeting(data, currentTime) {
-    let nextMeeting = getNextMeeting(data, currentTime);
-    if (nextMeeting !== null) {
-        let nextMeetingStart = new Date(nextMeeting.Start);
-        let diff = (nextMeetingStart.getTime() - currentTime.getTime()) / 1000;
-        let hourText = 'hour';
-        let hours;
-        let minutesText = 'minutes';
-
-        let minutes = Math.ceil(diff / 60);
-
-        if (minutes > 59) {
-            hours = Math.floor(minutes / 60);
-            if (hours > 1) {
-                hourText = 'hours';
-            }
-            minutes = minutes % 60;
-            if (minutes === 1) {
-                minutesText = 'minute';
-            }
-        } else {
-            hours = 0;
-        }
-
-        countDownDiv.innerHTML = hours.toLocaleString() + ' ' + hourText + ' ' + minutes.toLocaleString() + ' ' + minutesText + ' until the next meeting.';
-        let p = document.createElement('p');
-        p.innerHTML = 'Organizer: ' + nextMeeting.Organizer;
-        p.setAttribute('class', '')
-        countDownDiv.appendChild(p);
-    } else {
-        countDownDiv.innerHTML = 'No meetings today!'
-    }
-}*/
-
 let slider = document.getElementById("myRange");
 let output = document.getElementById("time-value");
 output.innerHTML = slider.value + ' minutes'; // Display the default slider value
@@ -426,10 +406,10 @@ slider.oninput = function () {
 }
 
 function toggleHide() {
-    if (bookTimeSlider.getAttribute('style') === 'display: none!important') {
-        bookTimeSlider.setAttribute('style', 'display: block!important');
+    if (bookTimeSlider.getAttribute('style') === 'display: none;') {
+        bookTimeSlider.setAttribute('style', 'display: block;');
     } else {
-        bookTimeSlider.setAttribute('style', 'display: none!important');
+        bookTimeSlider.setAttribute('style', 'display: none;');
     }
 }
 
@@ -441,14 +421,14 @@ function bookTimeNow() {
     let finishTime = new Date(currentDate.getTime() + output.value * 60000);
     let nextMeeting = getNextMeeting(allData, new Date(), room);
 
-    if (nextMeeting !== undefined && (finishTime.toLocaleTimeString() > new Date(nextMeeting.Start).toLocaleTimeString())) {
+    if (nextMeeting !== undefined && (finishTime > new Date(nextMeeting.Start))) {
         let modal = document.getElementById("myModal");
         let span = document.getElementsByClassName("close")[0];
         modal.style.display = "block";
-        span.onclick = function() {
+        span.onclick = function () {
             modal.style.display = "none";
         }
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target == modal) {
                 modal.style.display = "none";
             }
@@ -457,13 +437,13 @@ function bookTimeNow() {
         conditionDiv.innerHTML = 'OCCUPIED';
         body.setAttribute('class', 'colour-div occupied');
         if (bookTimeButton !== null) {
-            bookTimeButton.setAttribute('style', 'display: none!important');
+            bookTimeButton.style.display = 'none';
         }
         if (finishMeetingButton !== null) {
-            finishMeetingButton.setAttribute('style', 'display: block!important');
+            finishMeetingButton.style.display = 'block';
         }
         if (adHocMeetingDiv !== null) {
-            adHocMeetingDiv.setAttribute('style', 'display: block!important');
+            adHocMeetingDiv.style.display = 'block';
         }
         if (noMeetingToday) {
             nextOrCurrentMeetingDiv.innerHTML = '';
@@ -485,4 +465,30 @@ function changeFetchLoop() {
 function finishMeeting() {
     window.location.reload();
     fetchData();
+}
+
+function showMeetingRooms() {
+    bookTimeSlider.style.display = 'none';
+    let modal = document.getElementById("roomSelectModal");
+    if (modal.getAttribute('style') === 'display: none;') {
+        modal.setAttribute('style', 'display: block;');
+    } else {
+        modal.setAttribute('style', 'display: none;');
+        modal.onclick = function () {
+            modal.style.display = "none";
+        }
+    }
+}
+
+function showMeetings() {
+    bookTimeSlider.style.display = 'none';
+    let modal = document.getElementById("tableModal");
+    if (modal.getAttribute('style') === 'display: none;') {
+        modal.setAttribute('style', 'display: block;');
+    } else {
+        modal.setAttribute('style', 'display: none;');
+        modal.onclick = function () {
+            modal.style.display = "none";
+        }
+    }
 }
