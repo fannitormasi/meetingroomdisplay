@@ -22,6 +22,7 @@ let select = document.querySelector('.room-select');
 let tableContainer = document.querySelector('.table-container');
 let finishMeetingButton = document.querySelector('.finish-meeting');
 let adHocMeetingDiv = document.querySelector('ad-hoc-meeting');
+let volumeSlider = document.querySelector('.volume-slider');
 
 if (finishMeetingButton !== null) {
     finishMeetingButton.style.display = "none";
@@ -38,7 +39,7 @@ select.addEventListener('click', (event) => {
     let value;
     if (event.target.id === 'roomSelectModal') {
         return;
-    }  else {
+    } else {
         value = event.target.id;
     }
     history.pushState(value, value, '#location=' + value);
@@ -49,9 +50,12 @@ select.addEventListener('click', (event) => {
     roomNameDiv.innerHTML = '';
     bookTimeSlider.style.display = "none";
     noMeetingToday = true;
+    if (adHocMeetingDiv) {
+        adHocMeetingDiv.innerHTML = '';
+    }
+    finishMeeting();
     fetchData();
 });
-
 
 function fetchData() {
     let url = "http://10.11.10.16:1880/meetingroomdata";
@@ -89,6 +93,18 @@ function showTable(jsonData) {
 
     // fill out the table with values
     for (let i = 0; i < jsonData.length; i++) {
+        if (param === 'aa-fejlesztoitargyalo') {
+            roomNameDiv.innerHTML = 'FEJLESZTŐI TÁRGYALÓ'
+        }
+        if (param === 'kistargyalo') {
+            roomNameDiv.innerHTML = 'KIS TÁRGYALÓ'
+        }
+        if (param === 'aa-ablakostargyalo') {
+            roomNameDiv.innerHTML = 'ABLAKOS TÁRGYALÓ'
+        }
+        if (param === 'aa-projecttargyalo') {
+            roomNameDiv.innerHTML = 'PROJECT TÁRGYALÓ'
+        }
         if (jsonData[i].Location === 'ExchangeControllRecord') {
             continue;
         }
@@ -111,7 +127,6 @@ function showTable(jsonData) {
                 tbody.appendChild(trBody);
             } else if (defineUrlParam(jsonData[i].Location) === param) {
                 noMeetingToday = false;
-                roomNameDiv.innerHTML = jsonData[i].Location.toUpperCase();
                 fillTableWithData(jsonData, keys, trBody, i);
                 tbody.appendChild(trBody);
             }
@@ -128,8 +143,6 @@ function showTable(jsonData) {
         if (finishMeetingButton !== null) {
             finishMeetingButton.style.display = "none";
         }
-        nextOrCurrentMeetingDiv.innerHTML = 'No scheduled meeting for today!';
-        roomNameDiv.innerHTML = '';
     }
     colourIfOccupied(jsonData, currentTime, param);
 
@@ -165,6 +178,7 @@ function showCurrentTime() {
 
     currentDateDiv.innerHTML = currentDate;
     let divTime = document.createElement('div');
+    divTime.setAttribute('class', 'current-time-div')
     divTime.innerHTML = currentTime;
 
     currentDateDiv.appendChild(divTime);
@@ -390,6 +404,7 @@ function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
         div.setAttribute('class', 'countdown-text')
         countDownDiv.appendChild(div);
     }
+    fetchData();
 }
 
 let slider = document.getElementById("myRange");
@@ -405,9 +420,12 @@ slider.oninput = function () {
     }
 }
 
-function toggleHide() {
+function toggleBookTime() {
     if (bookTimeSlider.getAttribute('style') === 'display: none;') {
         bookTimeSlider.setAttribute('style', 'display: block;');
+        if (volumeSlider.getAttribute('style') === 'display: block;') {
+            volumeSlider.setAttribute('style', 'display: none;');
+        }
     } else {
         bookTimeSlider.setAttribute('style', 'display: none;');
     }
@@ -454,7 +472,7 @@ function bookTimeNow() {
         countDownDiv.innerHTML = finishTime.toLocaleTimeString();
 
         setTimeout(changeFetchLoop, output.value * 60000);
-        toggleHide();
+        toggleBookTime();
     }
 }
 
@@ -469,6 +487,7 @@ function finishMeeting() {
 
 function showMeetingRooms() {
     bookTimeSlider.style.display = 'none';
+    volumeSlider.style.display = 'none';
     let modal = document.getElementById("roomSelectModal");
     if (modal.getAttribute('style') === 'display: none;') {
         modal.setAttribute('style', 'display: block;');
@@ -482,6 +501,7 @@ function showMeetingRooms() {
 
 function showMeetings() {
     bookTimeSlider.style.display = 'none';
+    volumeSlider.style.display = 'none';
     let modal = document.getElementById("tableModal");
     if (modal.getAttribute('style') === 'display: none;') {
         modal.setAttribute('style', 'display: block;');
@@ -490,5 +510,16 @@ function showMeetings() {
         modal.onclick = function () {
             modal.style.display = "none";
         }
+    }
+}
+
+function toggleVolume() {
+    if (volumeSlider.getAttribute('style') === 'display: none;') {
+        volumeSlider.setAttribute('style', 'display: block;');
+        if (bookTimeSlider.getAttribute('style') === 'display: block;') {
+            bookTimeSlider.setAttribute('style', 'display: none;');
+        }
+    } else {
+        volumeSlider.setAttribute('style', 'display: none;');
     }
 }

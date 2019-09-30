@@ -75,11 +75,11 @@ tbody tr:hover {
 
 .occupied {
     width: 800px;
-    background-color: rgba(167, 48, 67, 0.65);
+    background-color: rgba(167, 48, 67, 0.83);
 }
 
 .free {
-    background-color: rgba(45, 113, 26, 0.65);
+    background-color: rgba(19,74,31,0.83);
     width: 800px;
 }
 
@@ -88,7 +88,7 @@ tbody tr:hover {
     position: fixed;
     z-index: -1;
     min-height: 600px;
-    width: 1000px;
+    width: 800px;
     scroll-behavior: smooth;
 }
 
@@ -109,7 +109,7 @@ body {
 }
 
 .left {
-    width: 49%;
+    width: 60%;
     position: absolute;
     color: white;
 }
@@ -120,8 +120,8 @@ body {
     color: white;
     font-size: 24px;
     line-height: 2;
-    margin: auto;
-    min-height: 145px;
+    min-height: 125px;
+    margin-top: 35px;
 }
 
 .current-date {
@@ -130,18 +130,22 @@ body {
     font-size: 20px;
 }
 
+.current-time-div {
+    font-size: 50px;
+    font-family: monospace;
+}
+
 .next-meeting-p {
     font-size: 14px !important;
     font-weight: bold;
 }
 
 .room-name {
-    text-align: center;
+    text-align: left;
     font-size: 30px;
     margin: 50px 25px 25px 25px;
     font-weight: bold;
     font-family: 'Montserrat', sans-serif;
-    width: 430px;
 }
 
 .condition {
@@ -170,28 +174,24 @@ body {
 .book-time-slider {
     margin-left: 70px;
     margin-top: 120px;
+    margin-right: 70px;
     animation-duration: 0.5s;
     animation-name: fadeIn;
 }
 
 .book-meeting {
     border-radius: 20px;
-    margin-left: 80px;
+    margin-left: 90px;
 }
-
-
 
 .slider {
     -webkit-appearance: searchfield;
     appearance: none;
     width: 100%;
-    height: 5px;
+    height: 3px;
     border-radius: 5px;
     background: #d3d3d3;
     outline: darkgrey;
-    opacity: 0.7;
-    -webkit-transition: .5s;
-    transition: opacity .2s;
 }
 
 .slider:hover {
@@ -204,16 +204,39 @@ body {
     border-radius: 50%;
     width: 15px;
     height: 15px;
-    background: teal;
+    background: rgb(74,69,67);
     cursor: grabbing
 }
 
-.slider::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
-    background: #4CAF50;
-    cursor: grabbing;
+.volume-slider {
+    animation-duration: 0.5s;
+    animation-name: fadeIn;
+    display: none;
+    transform: rotate(90deg);
+    position: absolute;
+    top: 365px;
+    left: 130px;
+    -webkit-appearance: searchfield;
+    appearance: none;
+    height: 3px;
+    border-radius: 5px;
+    background: whitesmoke;
+    outline: darkgrey;
+    -webkit-transition: .5s;
+    transition: opacity .2s;
+    width: 90px;
 }
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    background: rgb(74,69,67);
+    cursor: grabbing
+}
+
 
 .book-time-btn, .finish-meeting {
     width: 150px !important;
@@ -275,7 +298,7 @@ body {
     position: absolute;
     top: 425px;
     left: 7%;
-    width: 30px;
+    width: 40px;
     height: 40px;
 }
 
@@ -323,5 +346,5 @@ body {
 }
 
 .volume {
-    left: 35%;
+    left: 33%;
 }
