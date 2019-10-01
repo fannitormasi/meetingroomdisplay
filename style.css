@@ -304,11 +304,11 @@ body {
 
 #roomSelectModal, #tableModal {
     display: none;
-    position: fixed;
+    position: absolute;
     z-index: 1;
-    padding-top: 150px;
     left: 0;
     top: 0;
+    padding-top: 50px;
     width: 100%;
     height: 100%;
     overflow: auto;
