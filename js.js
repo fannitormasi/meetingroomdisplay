@@ -221,6 +221,9 @@ function sortDataByDate(data) {
                 data[i] = data[j];
                 data[j] = temp;
             }
+            if (data[i].Location === 'Fejlesztői tárgyaló') {
+                data[i].Location = 'AA - Fejlesztői tárgyaló'
+            }
         }
     }
 }
@@ -351,8 +354,6 @@ function showCurrentMeeting(data, room) {
 function showOneMeeting(data, i) {
     let oneMeetingData = data[i];
 
-    oneMeetingTable.innerHTML = '';
-
     let table = document.createElement('table');
     table.setAttribute('class', 'table border')
     let thead = document.createElement('thead');
@@ -360,7 +361,6 @@ function showOneMeeting(data, i) {
     thead.innerHTML = oneMeetingData.Location;
     table.appendChild(thead);
     table.appendChild(tbody);
-    oneMeetingTable.appendChild(table);
 
     let trOrganizer = document.createElement('tr');
     trOrganizer.innerHTML = 'Organizer: ' + oneMeetingData.Organizer;
