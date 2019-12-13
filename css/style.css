@@ -38,7 +38,7 @@
     }
 }
 
-.table-container {
+.table-container, .volume-slider-container {
     margin: auto;
     border-radius: 20px;
     font-family: "Lucida Sans";
@@ -46,6 +46,7 @@
     text-align: center;
     animation-duration: 1s;
     animation-name: fadeIn;
+    z-index: 100;
 }
 
 table {
@@ -79,7 +80,7 @@ tbody tr:hover {
 }
 
 .free {
-    background-color: rgba(19,74,31,0.8);
+    background-color: rgba(19, 74, 31, 0.8);
     width: 800px;
 }
 
@@ -87,7 +88,7 @@ tbody tr:hover {
     opacity: 0.3;
     position: fixed;
     z-index: -1;
-    min-height: 600px;
+    height: 480px;
     width: 800px;
     scroll-behavior: smooth;
 }
@@ -115,6 +116,8 @@ body {
 }
 
 .next-or-current-meeting {
+    width: 270px;
+    right: 50px;
     position: relative;
     font-family: monospace;
     color: white;
@@ -127,7 +130,7 @@ body {
 .current-date {
     font-family: 'Montserrat', sans-serif;
     color: white;
-    font-size: 20px;
+    font-size: 13px;
 }
 
 .current-time-div {
@@ -136,8 +139,12 @@ body {
 }
 
 .next-meeting-p {
-    font-size: 14px !important;
+    font-size: 22px !important;
     font-weight: bold;
+}
+
+.next-meeting-org {
+    font-size: 15px !important;
 }
 
 .room-name {
@@ -146,6 +153,7 @@ body {
     margin: 50px 25px 25px 25px;
     font-weight: bold;
     font-family: 'Montserrat', sans-serif;
+    padding-left: 10px;
 }
 
 .condition {
@@ -160,7 +168,6 @@ body {
 .countdown {
     width: 480px;
     font-size: 65px;
-    margin-top: 30px;
 }
 
 .countdown-text {
@@ -172,16 +179,31 @@ body {
 }
 
 .book-time-slider {
+    display: none;
     margin-left: 70px;
-    margin-top: 120px;
+    margin-top: 85px;
     margin-right: 70px;
+    width: 45%;
     animation-duration: 0.5s;
     animation-name: fadeIn;
 }
 
 .book-meeting {
     border-radius: 20px;
-    margin-left: 90px;
+    margin-left: 100px;
+}
+
+.cancel-meeting {
+    border-radius: 20px;
+    margin-left: 10px;
+    z-index: 20;
+    height: 25px;
+    width: 25px;
+    padding: 0;
+    background-color: grey;
+    color: white;
+    border: none;
+    opacity: 0.6;
 }
 
 .slider {
@@ -204,18 +226,18 @@ body {
     border-radius: 50%;
     width: 15px;
     height: 15px;
-    background: rgb(74,69,67);
-    cursor: grabbing
+    background: rosybrown;
+    border: 5px solid whitesmoke;
+    cursor: grabbing;
 }
 
 .volume-slider {
     animation-duration: 0.5s;
     animation-name: fadeIn;
-    display: none;
-    transform: rotate(90deg);
+    transform: rotate(-90deg);
     position: absolute;
     top: 365px;
-    left: 130px;
+    left: 75px;
     -webkit-appearance: searchfield;
     appearance: none;
     height: 3px;
@@ -233,7 +255,8 @@ body {
     border-radius: 50%;
     width: 15px;
     height: 15px;
-    background: rgb(74,69,67);
+    background: rosybrown;
+    border: 5px solid whitesmoke;
     cursor: grabbing
 }
 
@@ -244,6 +267,7 @@ body {
     color: rgb(50, 50, 50);
     border-radius: 25px;
     margin-left: 70px;
+    margin-top: 35px;
 }
 
 .ad-hoc-meeting {
@@ -256,7 +280,7 @@ body {
     display: none;
     position: fixed;
     z-index: 1;
-    padding-top: 100px;
+    padding-top: 125px;
     left: 0;
     top: 0;
     width: 100%;
@@ -296,28 +320,41 @@ body {
 
 .meeting-room-selector {
     position: absolute;
-    top: 425px;
+    top: 420px;
     left: 7%;
     width: 40px;
     height: 40px;
 }
 
-#roomSelectModal, #tableModal {
+#roomSelectModal, #tableModal, #volumeModal, #timeSliderModal, #changeMusicModal {
     display: none;
     position: absolute;
     z-index: 1;
     left: 0;
     top: 0;
-    padding-top: 50px;
+    padding-top: 141px;
     width: 100%;
     height: 100%;
     overflow: auto;
     background-color: rgb(0, 0, 0);
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 #roomSelectModal {
-    padding-top: 200px;
+    padding-top: 190px;
+}
+
+#volumeModal, #timeSliderModal {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+#changeMusicModal {
+    padding: 50px;
+}
+
+iframe {
+    height: 380px;
+    width: 700px;
 }
 
 .room-box {
@@ -325,30 +362,78 @@ body {
     width: 110px;
     float: left;
     background-color: white;
-    margin-left: 40px;
-    color: rgb(54,54,54);
+    margin-left: 70px;
+    color: rgb(54, 54, 54);
     text-align: center;
     text-align: center;
     border-radius: 60px;
-    padding-top: 30px!important;
+    padding-top: 25px !important;
     animation-duration: 1s;
     animation-name: fadeIn;
     font-family: "Lucida Sans";
+    font-size: 18px;
+    border: dimgrey solid 2px;
 }
 
-.meetings, .volume {
+.meetings, .volume, .volume-off, .change-music, .next-track, .change-music {
     position: absolute;
-    top: 425px;
-    left: 20%;
+    top: 420px;
+    left: 7%;
     width: 40px;
     height: 40px;
 }
 
 #all {
-    background-color: rgb(180,180,180);
+    background-color: rgb(180, 180, 180);
     color: white;
 }
 
 .volume {
+    left: 21%;
+}
+
+.next-track {
+    left: 45%;
+}
+
+.volume-off {
     left: 33%;
+}
+
+.change-music {
+    left: 58%;
+    top: 423px;
+    height: 35px;
+    width: 35px;
+}
+
+.volume-value {
+    position: relative;
+    left: 200px;
+}
+
+.refresh {
+    width: 15px;
+    position: absolute;
+    margin-left: 200px;
+    margin-top: -30px;
+}
+
+#progress-bar {
+    height: 370px;
+    margin-top: -250px;
+    margin-left: -130px;
+    z-index: 0;
+}
+
+body {
+    touch-action: manipulation;
+}
+
+.book-meeting:hover, .book-time-btn:hover, .meetings:hover, .volume:hover, .next-track:hover, .change-music:hover, .volume-off:hover {
+    cursor: pointer !important;
+}
+
+.no-meetings {
+    font-family: 'Montserrat', sans-serif;
 }

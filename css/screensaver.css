@@ -1,0 +1,11 @@
+#screensaver {
+    position: fixed;
+    width: 800px;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    display: none;
+    z-index: 9999;
+    background: url("https://media.giphy.com/media/IwE4EjLaVqJHy/giphy.gif");
+    background-size: 830px;
+}

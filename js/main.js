@@ -2,7 +2,7 @@ let x;
 let currentDateDiv = document.querySelector('.current-date');
 
 fetchData();
-x = setInterval(fetchData, 1000);
+x = setInterval(fetchData, 60000);
 
 showCurrentTime()
 setInterval(showCurrentTime, 1000);
@@ -11,18 +11,18 @@ let allData;
 let noMeetingToday = true;
 
 let roomNameDiv = document.querySelector('.room-name');
-let oneMeetingTable = document.querySelector('.one-meeting-table');
 let countDownDiv = document.querySelector('.countdown');
 let body = document.querySelector('body');
 let conditionDiv = document.querySelector('.condition');
 let nextOrCurrentMeetingDiv = document.querySelector('.next-or-current-meeting');
 let bookTimeSlider = document.querySelector('.book-time-slider');
 let bookTimeButton = document.querySelector('.book-time-btn');
-let select = document.querySelector('.room-select');
 let tableContainer = document.querySelector('.table-container');
 let finishMeetingButton = document.querySelector('.finish-meeting');
 let adHocMeetingDiv = document.querySelector('ad-hoc-meeting');
-let volumeSlider = document.querySelector('.volume-slider');
+let url = window.location.href;
+let param = url.split('location=')[1];
+let timeSliderModal = document.getElementById("timeSliderModal");
 
 if (finishMeetingButton !== null) {
     finishMeetingButton.style.display = "none";
@@ -35,27 +35,11 @@ if (bookTimeSlider !== null) {
     bookTimeSlider.style.display = "none";
 }
 
-select.addEventListener('click', (event) => {
-    let value;
-    if (event.target.id === 'roomSelectModal') {
-        return;
-    } else {
-        value = event.target.id;
-    }
-    history.pushState(value, value, '#location=' + value);
-    countDownDiv.innerHTML = '';
-    body.setAttribute('class', 'colour-div free');
-    conditionDiv.innerHTML = '';
-    nextOrCurrentMeetingDiv.innerHTML = '';
-    roomNameDiv.innerHTML = '';
-    bookTimeSlider.style.display = "none";
-    noMeetingToday = true;
-    if (adHocMeetingDiv) {
-        adHocMeetingDiv.innerHTML = '';
-    }
-    finishMeeting();
-    fetchData();
-});
+let table = document.createElement('table');
+let thead = document.createElement('thead');
+let tbody = document.createElement('tbody');
+let trHead = document.createElement('tr');
+let trBody;
 
 function fetchData() {
     let url = "http://10.11.10.16:1880/meetingroomdata";
@@ -77,33 +61,25 @@ function showTable(jsonData) {
     parseTimestamp(jsonData);
     sortDataByDate(jsonData);
 
-    let url = window.location.href;
-    let param = url.split('location=')[1];
     let keys = Object.keys(jsonData[0]);
 
     tableContainer.innerHTML = '';
-    let table = document.createElement('table');
-    table.setAttribute('class', '')
-    let thead = document.createElement('thead');
-    let tbody = document.createElement('tbody');
-    let trHead = document.createElement('tr');
-    let trBody;
 
     createHeader(jsonData, trHead);
 
     // fill out the table with values
     for (let i = 0; i < jsonData.length; i++) {
-        if (param === 'aa-fejlesztoitargyalo') {
-            roomNameDiv.innerHTML = 'FEJLESZTŐI TÁRGYALÓ'
+        if (param === 'kortargyalo') {
+            roomNameDiv.innerHTML = 'KŐR TÁRGYALÓ'
         }
-        if (param === 'kistargyalo') {
-            roomNameDiv.innerHTML = 'KIS TÁRGYALÓ'
+        if (param === 'pikktargyalo') {
+            roomNameDiv.innerHTML = 'PIKK TÁRGYALÓ'
         }
-        if (param === 'aa-ablakostargyalo') {
-            roomNameDiv.innerHTML = 'ABLAKOS TÁRGYALÓ'
+        if (param === 'trefftargyalo') {
+            roomNameDiv.innerHTML = 'TREFF TÁRGYALÓ'
         }
-        if (param === 'aa-projecttargyalo') {
-            roomNameDiv.innerHTML = 'PROJECT TÁRGYALÓ'
+        if (param === 'karotargyalo') {
+            roomNameDiv.innerHTML = 'KÁRÓ TÁRGYALÓ'
         }
         if (jsonData[i].Location === 'ExchangeControllRecord') {
             continue;
@@ -113,26 +89,19 @@ function showTable(jsonData) {
             continue;
         } else {
             trBody = document.createElement('tr');
-            if (param === 'all' || param === undefined) {
+            if (defineUrlParam(jsonData[i].Location) === param) {
                 noMeetingToday = false;
-                body.setAttribute('class', 'colour-div all-room');
-                conditionDiv.innerHTML = 'ALL ROOMS';
-                if (bookTimeButton !== null) {
-                    bookTimeButton.style.display = "none";
-                }
-                if (finishMeetingButton !== null) {
-                    finishMeetingButton.style.display = "none";
-                }
-                fillTableWithData(jsonData, keys, trBody, i);
-                tbody.appendChild(trBody);
-            } else if (defineUrlParam(jsonData[i].Location) === param) {
-                noMeetingToday = false;
-                fillTableWithData(jsonData, keys, trBody, i);
+                fillTableWithData(jsonData[i], keys, trBody, i);
                 tbody.appendChild(trBody);
             }
         }
     }
     if (noMeetingToday) {
+        let div = document.createElement('h3');
+        div.setAttribute('class', 'text-white mt-5 pt-5 no-meetings')
+        div.innerText = 'No meetings scheduled for today'
+        tableContainer.appendChild(div);
+
         conditionDiv.innerHTML = 'AVAILABLE';
         body.setAttribute('class', 'colour-div free');
         countDownDiv.innerHTML = '';
@@ -150,6 +119,17 @@ function showTable(jsonData) {
     table.appendChild(thead);
     table.appendChild(tbody);
     tableContainer.appendChild(table);
+}
+
+function fillTableWithData(data, header, parentElement, i) {
+    for (let j = 0; j < header.length; j++) {
+        if (header[j] === 'Cancelled') {
+            continue;
+        }
+        let th = document.createElement('th');
+        th.innerHTML = data[header[j]];
+        parentElement.appendChild(th);
+    }
 }
 
 function defineUrlParam(url) {
@@ -196,23 +176,12 @@ function parseTimestamp(jsonData) {
     }
 }
 
-function fillTableWithData(data, header, parentElement, i) {
-    for (let j = 0; j < header.length; j++) {
-        if (header[j] === 'Cancelled') {
-            continue;
-        }
-        let th = document.createElement('th');
-        th.innerHTML = data[i][header[j]];
-        th.addEventListener('click', function () {
-            showOneMeeting(data, i);
-        });
-        parentElement.appendChild(th);
-    }
-}
-
 function sortDataByDate(data) {
     let temp;
     for (let i = 0; i < data.length; i++) {
+        if (data[i].Location === 'Fejlesztői tárgyaló') {
+            data[i].Location = 'AA - Fejlesztői tárgyaló'
+        }
         for (let j = i + 1; j < data.length; j++) {
             let firstDate = new Date(data[i].Start);
             let secondDate = new Date(data[j].Start);
@@ -220,9 +189,6 @@ function sortDataByDate(data) {
                 temp = data[i];
                 data[i] = data[j];
                 data[j] = temp;
-            }
-            if (data[i].Location === 'Fejlesztői tárgyaló') {
-                data[i].Location = 'AA - Fejlesztői tárgyaló'
             }
         }
     }
@@ -314,14 +280,14 @@ function showNextMeeting(data, room) {
         return;
     } else if (defineUrlParam(nextMeetingData.Location) === room) {
         let title = document.createElement('div');
-        title.innerHTML = 'NEXT MEETING:'
+        title.innerHTML = 'NEXT MEETING'
         let pTime = document.createElement('p');
         pTime.innerHTML = new Date(nextMeetingData.Start).toLocaleTimeString() + ' - ' + new Date(nextMeetingData.End).toLocaleTimeString();
         pTime.setAttribute('class', 'next-meeting-p');
 
         let pOrg = document.createElement('p');
         pOrg.innerHTML = 'Organizer: ' + nextMeetingData.Organizer;
-        pOrg.setAttribute('class', 'next-meeting-p');
+        pOrg.setAttribute('class', 'next-meeting-org');
 
         nextOrCurrentMeetingDiv.appendChild(title)
         nextOrCurrentMeetingDiv.appendChild(pTime)
@@ -342,37 +308,13 @@ function showCurrentMeeting(data, room) {
 
             let pOrg = document.createElement('p');
             pOrg.innerHTML = 'Organizer: ' + currentMeeting.Organizer;
-            pOrg.setAttribute('class', 'next-meeting-p');
+            pOrg.setAttribute('class', 'next-meeting-org');
 
             nextOrCurrentMeetingDiv.appendChild(title)
             nextOrCurrentMeetingDiv.appendChild(pTime)
             nextOrCurrentMeetingDiv.appendChild(pOrg)
         }
     }
-}
-
-function showOneMeeting(data, i) {
-    let oneMeetingData = data[i];
-
-    let table = document.createElement('table');
-    table.setAttribute('class', 'table border')
-    let thead = document.createElement('thead');
-    let tbody = document.createElement('tbody');
-    thead.innerHTML = oneMeetingData.Location;
-    table.appendChild(thead);
-    table.appendChild(tbody);
-
-    let trOrganizer = document.createElement('tr');
-    trOrganizer.innerHTML = 'Organizer: ' + oneMeetingData.Organizer;
-    tbody.appendChild(trOrganizer);
-
-    let trStart = document.createElement('tr');
-    trStart.innerHTML = 'Start time: ' + oneMeetingData.Start;
-    tbody.appendChild(trStart);
-
-    let trEnd = document.createElement('tr');
-    trEnd.innerHTML = 'End time: ' + oneMeetingData.End;
-    tbody.appendChild(trEnd);
 }
 
 function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
@@ -396,43 +338,32 @@ function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
         } else {
             hours = 0;
         }
-
-        countDownDiv.innerHTML = hours.toLocaleString() + ' : ' + minutes.toLocaleString() + ' : ' + seconds.toLocaleString();
+        if (minutes < 10) {
+            minutes = '0' + minutes;
+        }
+        if (hours === 0) {
+            hours = '0' + hours;
+        }
+        if (seconds < 10) {
+            seconds = '0' + seconds;
+        }
+        if (hours.toLocaleString() === "00" && minutes.toLocaleString() === "00" && seconds.toLocaleString() === "01") {
+            refresh();
+            fetchData();
+        } else {
+            countDownDiv.innerHTML = hours.toLocaleString() + ' : ' + minutes.toLocaleString() + ' : ' + seconds.toLocaleString();
+        }
 
         let div = document.createElement('div');
         div.innerHTML = ' from current meeting';
         div.setAttribute('class', 'countdown-text')
         countDownDiv.appendChild(div);
     }
-    fetchData();
-}
-
-let slider = document.getElementById("myRange");
-let output = document.getElementById("time-value");
-output.innerHTML = slider.value + ' minutes'; // Display the default slider value
-
-// Update the current slider value (each time you drag the slider handle)
-slider.oninput = function () {
-    if (this.value === '1') {
-        output.innerHTML = this.value + ' minute';
-    } else {
-        output.innerHTML = this.value + ' minutes';
-    }
-}
-
-function toggleBookTime() {
-    if (bookTimeSlider.getAttribute('style') === 'display: none;') {
-        bookTimeSlider.setAttribute('style', 'display: block;');
-        if (volumeSlider.getAttribute('style') === 'display: block;') {
-            volumeSlider.setAttribute('style', 'display: none;');
-        }
-    } else {
-        bookTimeSlider.setAttribute('style', 'display: none;');
-    }
 }
 
 function bookTimeNow() {
     clearInterval(x);
+    let slider = document.querySelector(".book-time-slider");
     let output = document.getElementById('myRange');
     let room = window.location.href.split('location=')[1];
     let currentDate = new Date()
@@ -440,18 +371,20 @@ function bookTimeNow() {
     let nextMeeting = getNextMeeting(allData, new Date(), room);
 
     if (nextMeeting !== undefined && (finishTime > new Date(nextMeeting.Start))) {
-        let modal = document.getElementById("myModal");
-        let span = document.getElementsByClassName("close")[0];
-        modal.style.display = "block";
-        span.onclick = function () {
-            modal.style.display = "none";
+        let modal = document.getElementById('myModal');
+        let span = document.querySelector(".close");
+        timeSliderModal.classList.add('d-block');
+        slider.classList.add('d-block');
+        modal.classList.add('d-block')
+        modal.onclick = function () {
+            modal.classList.remove('d-block');
         }
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
+        span.onclick = function () {
+            modal.classList.remove('d-block');
         }
     } else {
+        timeSliderModal.classList.remove('d-block');
+        slider.classList.remove('b-block')
         conditionDiv.innerHTML = 'OCCUPIED';
         body.setAttribute('class', 'colour-div occupied');
         if (bookTimeButton !== null) {
@@ -472,54 +405,58 @@ function bookTimeNow() {
         countDownDiv.innerHTML = finishTime.toLocaleTimeString();
 
         setTimeout(changeFetchLoop, output.value * 60000);
-        toggleBookTime();
     }
 }
 
 function changeFetchLoop() {
-    x = setInterval(fetchData, 1000);
+    x = setInterval(fetchData, 10000);
 }
 
 function finishMeeting() {
     window.location.reload();
-    fetchData();
-}
-
-function showMeetingRooms() {
-    bookTimeSlider.style.display = 'none';
-    volumeSlider.style.display = 'none';
-    let modal = document.getElementById("roomSelectModal");
-    if (modal.getAttribute('style') === 'display: none;') {
-        modal.setAttribute('style', 'display: block;');
-    } else {
-        modal.setAttribute('style', 'display: none;');
-        modal.onclick = function () {
-            modal.style.display = "none";
-        }
-    }
 }
 
 function showMeetings() {
-    bookTimeSlider.style.display = 'none';
-    volumeSlider.style.display = 'none';
     let modal = document.getElementById("tableModal");
-    if (modal.getAttribute('style') === 'display: none;') {
-        modal.setAttribute('style', 'display: block;');
-    } else {
-        modal.setAttribute('style', 'display: none;');
-        modal.onclick = function () {
-            modal.style.display = "none";
-        }
+    modal.setAttribute('style', 'display: block;');
+    modal.onclick = function () {
+        modal.style.display = "none";
     }
 }
 
 function toggleVolume() {
-    if (volumeSlider.getAttribute('style') === 'display: none;') {
-        volumeSlider.setAttribute('style', 'display: block;');
-        if (bookTimeSlider.getAttribute('style') === 'display: block;') {
-            bookTimeSlider.setAttribute('style', 'display: none;');
-        }
+    let modal = document.getElementById("volumeModal");
+    modal.setAttribute('style', 'display: block;');
+    bookTimeSlider.setAttribute('style', 'display: none;');
+    modal.onclick = function () {
+        modal.style.display = "none";
+    }
+}
+
+function toggleBookTime() {
+    let slider = document.querySelector(".book-time-slider");
+    timeSliderModal.classList.add('d-block')
+    slider.classList.add('d-block')
+}
+
+function cancelBooking() {
+    timeSliderModal.classList.remove('d-block')
+}
+
+function refresh() {
+    window.close();
+    window.open(window.location.href, '_blank').focus();
+}
+
+let slider = document.getElementById("myRange");
+let output = document.getElementById("time-value");
+output.innerHTML = slider.value + ' minutes'; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+slider.oninput = function () {
+    if (this.value === '1') {
+        output.innerHTML = this.value + ' minute';
     } else {
-        volumeSlider.setAttribute('style', 'display: none;');
+        output.innerHTML = this.value + ' minutes';
     }
 }
