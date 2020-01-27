@@ -2,7 +2,7 @@ let x;
 let currentDateDiv = document.querySelector('.current-date');
 
 fetchData();
-x = setInterval(fetchData, 60000);
+x = setInterval(fetchData, 1000);
 
 showCurrentTime()
 setInterval(showCurrentTime, 1000);
@@ -23,6 +23,7 @@ let adHocMeetingDiv = document.querySelector('ad-hoc-meeting');
 let url = window.location.href;
 let param = url.split('location=')[1];
 let timeSliderModal = document.getElementById("timeSliderModal");
+let volumeModal = document.getElementById("volumeModal");
 
 if (finishMeetingButton !== null) {
     finishMeetingButton.style.display = "none";
@@ -49,25 +50,20 @@ function fetchData() {
         })
         .then(function (jsonData) {
             allData = jsonData;
-            showTable(allData);
+            createBaseProperties(jsonData);
         });
 }
 
+setTimeout(() => {
+    createTableWithUpcomingMeetings(allData)
+}, 2000);
 
-function showTable(jsonData) {
+function createBaseProperties(jsonData) {
     let currentTime = new Date();
-    noMeetingToday = true;
-
     parseTimestamp(jsonData);
     sortDataByDate(jsonData);
+    colourIfOccupied(jsonData, currentTime, param);
 
-    let keys = Object.keys(jsonData[0]);
-
-    tableContainer.innerHTML = '';
-
-    createHeader(jsonData, trHead);
-
-    // fill out the table with values
     for (let i = 0; i < jsonData.length; i++) {
         if (param === 'kortargyalo') {
             roomNameDiv.innerHTML = 'KŐR TÁRGYALÓ'
@@ -84,6 +80,19 @@ function showTable(jsonData) {
         if (jsonData[i].Location === 'ExchangeControllRecord') {
             continue;
         }
+    }
+}
+
+function createTableWithUpcomingMeetings(jsonData) {
+    let currentTime = new Date();
+    noMeetingToday = true;
+    let keys = Object.keys(jsonData[0]);
+    tableContainer.innerHTML = '';
+
+    createHeader(jsonData, trHead);
+
+    // fill out the table with values
+    for (let i = 0; i < jsonData.length; i++) {
         //show only what meeting is happening later
         if (new Date(jsonData[i].End) < currentTime) {
             continue;
@@ -99,10 +108,10 @@ function showTable(jsonData) {
     if (noMeetingToday) {
         let div = document.createElement('h3');
         div.setAttribute('class', 'text-white mt-5 pt-5 no-meetings')
-        div.innerText = 'No meetings scheduled for today'
+        div.innerText = 'Nincs több meeting a mai napon'
         tableContainer.appendChild(div);
 
-        conditionDiv.innerHTML = 'AVAILABLE';
+        conditionDiv.innerHTML = 'SZABAD';
         body.setAttribute('class', 'colour-div free');
         countDownDiv.innerHTML = '';
         table.style.display = "none";
@@ -113,8 +122,6 @@ function showTable(jsonData) {
             finishMeetingButton.style.display = "none";
         }
     }
-    colourIfOccupied(jsonData, currentTime, param);
-
     thead.appendChild(trHead);
     table.appendChild(thead);
     table.appendChild(tbody);
@@ -179,9 +186,6 @@ function parseTimestamp(jsonData) {
 function sortDataByDate(data) {
     let temp;
     for (let i = 0; i < data.length; i++) {
-        if (data[i].Location === 'Fejlesztői tárgyaló') {
-            data[i].Location = 'AA - Fejlesztői tárgyaló'
-        }
         for (let j = i + 1; j < data.length; j++) {
             let firstDate = new Date(data[i].Start);
             let secondDate = new Date(data[j].Start);
@@ -201,9 +205,10 @@ function colourIfOccupied(data, currentTime, room) {
             let endDate = new Date(data[i].End);
 
             if ((currentTime >= startDate && currentTime <= endDate)) {
+                stop_screensaver();
                 body.setAttribute('class', 'colour-div occupied');
                 showCurrentMeeting(data, room);
-                conditionDiv.innerHTML = 'OCCUPIED';
+                conditionDiv.innerHTML = 'FOGLALT';
                 if (bookTimeButton !== null) {
                     bookTimeButton.style.display = "none";
                 }
@@ -216,7 +221,7 @@ function colourIfOccupied(data, currentTime, room) {
             } else {
                 body.setAttribute('class', 'colour-div free')
                 showNextMeeting(data, room);
-                conditionDiv.innerHTML = 'AVAILABLE';
+                conditionDiv.innerHTML = 'SZABAD';
                 if (bookTimeButton !== null) {
                     bookTimeButton.style.display = "block";
                 }
@@ -280,13 +285,13 @@ function showNextMeeting(data, room) {
         return;
     } else if (defineUrlParam(nextMeetingData.Location) === room) {
         let title = document.createElement('div');
-        title.innerHTML = 'NEXT MEETING'
+        title.innerHTML = 'KÖVETKEZŐ MEETING'
         let pTime = document.createElement('p');
         pTime.innerHTML = new Date(nextMeetingData.Start).toLocaleTimeString() + ' - ' + new Date(nextMeetingData.End).toLocaleTimeString();
         pTime.setAttribute('class', 'next-meeting-p');
 
         let pOrg = document.createElement('p');
-        pOrg.innerHTML = 'Organizer: ' + nextMeetingData.Organizer;
+        pOrg.innerHTML = 'Szervező: ' + nextMeetingData.Organizer;
         pOrg.setAttribute('class', 'next-meeting-org');
 
         nextOrCurrentMeetingDiv.appendChild(title)
@@ -301,13 +306,13 @@ function showCurrentMeeting(data, room) {
     if (currentMeeting !== undefined) {
         if (defineUrlParam(currentMeeting.Location) === room) {
             let title = document.createElement('div');
-            title.innerHTML = 'CURRENT MEETING:'
+            title.innerHTML = 'AKTUÁLIS MEETING:'
             let pTime = document.createElement('p');
             pTime.innerHTML = new Date(currentMeeting.Start).toLocaleTimeString() + ' - ' + new Date(currentMeeting.End).toLocaleTimeString();
             pTime.setAttribute('class', 'next-meeting-p');
 
             let pOrg = document.createElement('p');
-            pOrg.innerHTML = 'Organizer: ' + currentMeeting.Organizer;
+            pOrg.innerHTML = 'Szervező: ' + currentMeeting.Organizer;
             pOrg.setAttribute('class', 'next-meeting-org');
 
             nextOrCurrentMeetingDiv.appendChild(title)
@@ -347,17 +352,13 @@ function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
         if (seconds < 10) {
             seconds = '0' + seconds;
         }
-        if (hours.toLocaleString() === "00" && minutes.toLocaleString() === "00" && seconds.toLocaleString() === "01") {
-            refresh();
+        if (hours.toLocaleString() === "00" && minutes.toLocaleString() === "00" && seconds.toLocaleString() === "00") {
+            window.location.reload();
             fetchData();
         } else {
+            bookTimeSlider.setAttribute('class', '');
             countDownDiv.innerHTML = hours.toLocaleString() + ' : ' + minutes.toLocaleString() + ' : ' + seconds.toLocaleString();
         }
-
-        let div = document.createElement('div');
-        div.innerHTML = ' from current meeting';
-        div.setAttribute('class', 'countdown-text')
-        countDownDiv.appendChild(div);
     }
 }
 
@@ -385,7 +386,7 @@ function bookTimeNow() {
     } else {
         timeSliderModal.classList.remove('d-block');
         slider.classList.remove('b-block')
-        conditionDiv.innerHTML = 'OCCUPIED';
+        conditionDiv.innerHTML = 'FOGLALT';
         body.setAttribute('class', 'colour-div occupied');
         if (bookTimeButton !== null) {
             bookTimeButton.style.display = 'none';
@@ -401,8 +402,11 @@ function bookTimeNow() {
         }
 
         let div = document.querySelector('.ad-hoc-meeting');
-        div.innerHTML = 'AD HOC MEETING UNTIL';
-        countDownDiv.innerHTML = finishTime.toLocaleTimeString();
+        div.innerHTML = 'AD HOC MEETING A KÖVETKEZŐ IDŐPONTIG';
+        let timeUntilAdHocMeetingEnd = finishTime.toLocaleTimeString();
+        let array = timeUntilAdHocMeetingEnd.split(':');
+        timeUntilAdHocMeetingEnd = array[0] + ':' + array[1];
+        countDownDiv.innerHTML = timeUntilAdHocMeetingEnd;
 
         setTimeout(changeFetchLoop, output.value * 60000);
     }
@@ -425,11 +429,10 @@ function showMeetings() {
 }
 
 function toggleVolume() {
-    let modal = document.getElementById("volumeModal");
-    modal.setAttribute('style', 'display: block;');
+    volumeModal.setAttribute('style', 'display: block;');
     bookTimeSlider.setAttribute('style', 'display: none;');
-    modal.onclick = function () {
-        modal.style.display = "none";
+    volumeModal.onclick = function () {
+        volumeModal.style.display = "none";
     }
 }
 
@@ -445,18 +448,48 @@ function cancelBooking() {
 
 function refresh() {
     window.close();
-    window.open(window.location.href, '_blank').focus();
+    window.open(window.location.href, '_blank');
 }
 
 let slider = document.getElementById("myRange");
 let output = document.getElementById("time-value");
-output.innerHTML = slider.value + ' minutes'; // Display the default slider value
+output.innerHTML = slider.value + ' perc'; // Display the default slider value
 
 // Update the current slider value (each time you drag the slider handle)
 slider.oninput = function () {
-    if (this.value === '1') {
-        output.innerHTML = this.value + ' minute';
-    } else {
-        output.innerHTML = this.value + ' minutes';
-    }
+    output.innerHTML = this.value + ' perc';
 }
+
+let screensaver_active = false;
+
+function show_screensaver() {
+    $('#screensaver').fadeIn();
+    screensaver_active = true;
+}
+
+function stop_screensaver() {
+    $('#screensaver').fadeOut();
+    screensaver_active = false;
+}
+
+$(document).ready(function () {
+    let mouseTimeout;
+
+    $(document).click(function () {
+        clearTimeout(mouseTimeout);
+
+        if (screensaver_active) {
+            stop_screensaver();
+        }
+        mouseTimeout = setTimeout(function () {
+            show_screensaver();
+        }, 7200000); // 2 hours
+    });
+    $(document).mousemove(function () {
+        clearTimeout(mouseTimeout);
+
+        mouseTimeout = setTimeout(function () {
+            show_screensaver();
+        }, 7200000); // 2 hours
+    });
+});

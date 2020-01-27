@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MeetingRoomDisplay</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/screensaver.css">
+    <link rel="stylesheet" type="text/css" href="css/patternLock.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/patternLock.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="js/jquery.patternlock.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </head>
 <body class="colour-div width-max">
 <div id="screensaver"></div>
@@ -25,12 +30,11 @@
             <div class="chart" id="graph" data-percent="10"></div>
         </div>
 
-         <!--<div onclick="showMeetingRooms()"><img class="meeting-room-selector" src="pic/location.png" alt=""></div>-->
+        <!--<div onclick="showMeetingRooms()"><img class="meeting-room-selector" src="pic/location.png" alt=""></div>-->
         <div onclick="showMeetings()"><img class="meetings" src="pic/calendar.png" alt=""></div>
         <div onclick="toggleVolume()"><img class="volume" src="pic/volume.png" alt=""></div>
         <div onclick="playNextTrack()"><img class="next-track" src="pic/next-track.png" alt=""></div>
         <div><img id="volumeOff" class="volume-off" src="pic/music-off.png" alt=""></div>
-     <!--   <div onclick="changeMusic()"><img class="change-music" src="pic/music.png" alt=""></a></div>-->
     </div>
 
     <div class="right">
@@ -40,20 +44,20 @@
         <div class="current-date text-right"></div>
         <div class="condition mt-3"></div>
         <div class="next-or-current-meeting text-right mb-4"></div>
-        <button type="button" onclick="toggleBookTime()" class="btn book-time-btn">Book now</button>
-        <button onclick="finishMeeting()" class="btn btn-light finish-meeting">Finish meeting</button>
+        <button type="button" onclick="toggleBookTime()" class="btn book-time-btn">Foglalás most</button>
+        <button onclick="finishMeeting()" class="btn btn-light finish-meeting">Meeting befejezése</button>
     </div>
 
     <div id="timeSliderModal">
         <div class="book-time-slider">
-            <input type="range" min="1" max="60" value="15" class="slider" id="myRange">
+            <input type="range" min="15" step="15" max="60" value="15" class="time-slider" id="myRange">
             <div id="time-value" class="text-center text-white"></div>
-            <button onclick="bookTimeNow()" class="btn btn-light book-meeting mt-3">Book meeting</button>
+            <button onclick="bookTimeNow()" class="btn btn-light book-meeting mt-3">Foglalás</button>
             <button onclick="cancelBooking()" class="btn btn-light cancel-meeting mt-3">X</button>
             <div id="myModal" class="modal">
                 <div class="modal-content">
                     <span class="close">&times;</span>
-                    <p class="mb-0 mt-1">Current meeting have to be finished before the upcoming starts</p>
+                    <p class="mb-0 mt-1">Az ad hoc meeting nem tarthat tovább, mint a következő meeting kezdete</p>
                 </div>
             </div>
         </div>
@@ -73,15 +77,27 @@
     <div id="changeMusicModal">
         <iframe></iframe>
     </div>
+    <div class="modal fade" id="gameModal" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="patterncontainer" class="patterncontainer">
 
-     <div id="roomSelectModal">
-         <div class="room-select">
-             <div class="room-box modal-content pt-4" id="kortargyalo">Kőr tárgyaló</div>
-             <div class="room-box modal-content pt-4" id="pikktargyalo">Pikk tárgyaló</div>
-             <div class="room-box modal-content pt-4" id="trefftargyalo">Treff tárgyaló</div>
-             <div class="room-box modal-content pt-4" id="karotargyalo">Káró tárgyaló</div>
-         </div>
-     </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="roomSelectModal">
+        <div class="room-select">
+            <div class="room-box modal-content pt-4" id="kortargyalo">Kőr tárgyaló</div>
+            <div class="room-box modal-content pt-4" id="pikktargyalo">Pikk tárgyaló</div>
+            <div class="room-box modal-content pt-4" id="trefftargyalo">Treff tárgyaló</div>
+            <div class="room-box modal-content pt-4" id="karotargyalo">Káró tárgyaló</div>
+        </div>
+    </div>
 </div>
 </body>
 
@@ -89,4 +105,7 @@
 <script src="js/screensaver.js"></script>
 <script src="js/volume.js"></script>
 <script src="js/changeroom.js"></script>
+<script src="js/easterEgg.js"></script>
+<script src="js/jquery.patternlock.js"></script>
+
 </html>

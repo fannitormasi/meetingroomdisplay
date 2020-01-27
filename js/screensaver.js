@@ -1,4 +1,6 @@
+/*
 $(document).ready(function () {
+    console.log(1);
     let mousetimeout;
     let screensaver_active = false;
 
@@ -22,14 +24,14 @@ $(document).ready(function () {
 
         mousetimeout = setTimeout(function () {
             show_screensaver();
-        }, 600000); // 5 secs
+        }, 1000); // 2 hours
     });
     $(document).mousemove(function () {
         clearTimeout(mousetimeout);
 
         mousetimeout = setTimeout(function () {
             show_screensaver();
-        }, 600000); // 5 secs
+        }, 1000); // 2 hours
     });
 
     function screensaver_animation() {
@@ -39,3 +41,4 @@ $(document).ready(function () {
         }
     }
 });
+*/

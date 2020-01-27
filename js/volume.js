@@ -128,16 +128,6 @@ function sendMsg(text) {
     sendJson(DeviceAction);
 }
 
-function changeMusic() {
-    let modal = document.getElementById("changeMusicModal");
-    let iframe = document.querySelector('iframe');
-    iframe.src = "http://10.11.30.30:6690/index.php";
-    modal.setAttribute('style', 'display: block;');
-    modal.onclick = function () {
-        modal.style.display = "none";
-    }
-}
-
 
 let volumeSlider = document.getElementById("myVolumeRange");
 volumeSlider.innerHTML = volumeSlider.value; // Display the default slider value

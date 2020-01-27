@@ -1,0 +1,70 @@
+.patternlock {
+    border: 1px solid white;
+}
+
+.insideWrapper {
+    border: 1px solid white;
+    box-shadow: none !important;
+}
+
+.patternlock .insideWrapper {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    border: 1px solid white;
+}
+
+.patternlock .insideWrapper canvas, .patternlock .insideWrapper .tbl {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    border: 1px solid white;
+}
+
+td {
+    box-shadow: none;
+}
+
+.tbl .tbl1 {
+    border: none !important;
+}
+
+.patternlock .insideWrapper .tbl {
+    border: 1px solid white;
+
+}
+
+.lockTd:first-child {
+    width: 25% !important;
+    border: 1px solid white;
+}
+
+.patternlock .tbl td {
+    box-shadow: none !important;
+    border: 1px solid white;
+}
+
+.patternlock .centerCircle {
+    border-radius: 50%;
+    background-color: #839973;
+    margin-left: 25%;
+}
+
+.lockTd {
+    background-color: white !important;
+    border: 1px solid white;
+}
+
+.activeLink {
+    background-color: #CE7663;
+    text-align: center;
+    padding: 5%;
+}
+
+#gameModal .modal-dialog .modal-content {
+    width: 67%;
+    left: 19%;
+    margin-top: 15%!important;
+    padding: 30px;
+}
