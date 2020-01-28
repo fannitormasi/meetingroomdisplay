@@ -1,23 +1,22 @@
 new_uri = "ws://10.11.10.16:1880/ws/bgsound"
 let conn = new WebSocket(new_uri);
+let VOLUME_CHANGE = "Client.OnVolumeChanged";
 conn.onopen = function () {
     console.log("Connection established!");
 };
 
 conn.onmessage = function (e) {
     divRep("wsstatus_lr", HtmlEncode(e.data));
-
     let msg = JSON.parse(e.data);
-
-    if (msg.action === "Client.OnVolumeChanged") {
-        console.log(`${msg.id} - ${msg.percent}`);
-        console.log(msg.percent);
-        if (msg.id === 'Etkezo') {
+    if (msg.action === VOLUME_CHANGE) {
+        if (roomName === 'karotargyalo' && msg.id === 'Csoki') {
+            volumeSlider.value = msg.percent * 3;
+        }
+        if (roomName === 'pikktargyalo' && msg.id === 'Etkezo') {
             volumeSlider.value = msg.percent * 3;
         }
     }
 };
-
 
 let updateWSStatus_tmr = setInterval(updateWSStatus, 1000);
 
@@ -67,6 +66,7 @@ function sendVol(action, id, vol, timeout) {
         timeout: timeout
     };
     sendJson(DeviceAction);
+
     console.log(DeviceAction);
 }
 
@@ -75,6 +75,11 @@ function playNextTrack() {
         action: "nexttrack"
     }
     sendJson(DeviceAction);
+    let popup = document.getElementById("myPopupNextTrack");
+    popup.classList.toggle("show");
+    setTimeout(() => {
+        popup.classList.toggle("show")
+    }, 1000)
     console.log(DeviceAction);
 }
 
@@ -128,33 +133,37 @@ function sendMsg(text) {
     sendJson(DeviceAction);
 }
 
-
 let volumeSlider = document.getElementById("myVolumeRange");
 volumeSlider.innerHTML = volumeSlider.value; // Display the default slider value
 
-if (param === "karotargyalo") {
+if (roomName === "karotargyalo") {
     volumeSlider.oninput = function () {
-        sendVol("setvol", 'Bejarat', this.value, 600);
-        sendVol("setvol", 'Csoki', this.value, 600);
+        sendVol("setvol", 'Bejarat', this.value, timeUntilCurrentMeetingEnd);
+        sendVol("setvol", 'Csoki', this.value, timeUntilCurrentMeetingEnd);
     }
 }
-if (param === "pikktargyalo") {
+if (roomName === "pikktargyalo") {
     volumeSlider.oninput = function () {
-        sendVol("setvol", "Etkezo", this.value, 10);
+        sendVol("setvol", "Etkezo", this.value, timeUntilCurrentMeetingEnd);
     }
 }
 
-if (param === "pikktargyalo") {
+if (roomName === "pikktargyalo") {
     document.getElementById('volumeOff').onclick = function () {
-        volumeOff("setvol", 'Etkezo', 0, 10);
+        volumeOff("setvol", 'Etkezo', 0, timeUntilCurrentMeetingEnd);
         volumeSlider.value = 0;
     }
 }
 
-if (param === "karotargyalo") {
+if (roomName === "karotargyalo") {
     document.getElementById('volumeOff').onclick = function () {
-        volumeOff("setvol", 'Bejarat', 0, 600)
-        volumeOff("setvol", 'Csoki', 0, 600);
+        volumeOff("setvol", 'Bejarat', 0, timeUntilCurrentMeetingEnd)
+        volumeOff("setvol", 'Csoki', 0, timeUntilCurrentMeetingEnd);
         volumeSlider.value = 0;
+        let popup = document.getElementById("myPopup");
+        popup.classList.toggle("show");
+        setTimeout(() => {
+            popup.classList.toggle("show")
+        }, 1000)
     }
 }
