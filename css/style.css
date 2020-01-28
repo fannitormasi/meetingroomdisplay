@@ -76,11 +76,11 @@ tbody tr:hover {
 
 .occupied {
     width: 800px;
-    background-color: rgba(167, 48, 67, 0.8);
+    background-color: rgba(167, 48, 67, 0.9);
 }
 
 .free {
-    background-color: rgba(19, 74, 31, 0.8);
+    background-color: rgba(19, 74, 31, 0.9);
     width: 800px;
 }
 
@@ -430,3 +430,64 @@ body {
 body {
     touch-action: none;
 }
+
+
+.popup, .popup-nexttrack {
+    position: fixed;
+    display: inline-block;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* The actual popup */
+.popup .popuptext, .popup-nexttrack .popuptext {
+    visibility: hidden;
+    width: 25px;
+    background-color: whitesmoke;
+    color: #839973;
+    text-align: center;
+    border-radius: 30px;
+    padding: 5px 0;
+    position: fixed;
+    z-index: 1;
+    left: 165px;
+    top: 380px;
+}
+
+.popup-nexttrack .popuptext  {
+    left: 225px!important;
+}
+
+/* Popup arrow */
+.popup .popuptext::after, .popup-nexttrack .popuptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+/* Toggle this class - hide and show the popup */
+.popup .show, .popup-nexttrack .show {
+    visibility: visible;
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+}
+
+/* Add animation (fade in the popup) */
+@-webkit-keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity:1 ;}
+}
+

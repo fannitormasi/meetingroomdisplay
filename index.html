@@ -34,7 +34,13 @@
         <div onclick="showMeetings()"><img class="meetings" src="pic/calendar.png" alt=""></div>
         <div onclick="toggleVolume()"><img class="volume" src="pic/volume.png" alt=""></div>
         <div onclick="playNextTrack()"><img class="next-track" src="pic/next-track.png" alt=""></div>
+        <div class="popup-nexttrack">
+            <i class="fa fa-check popuptext" id="myPopupNextTrack" aria-hidden="true"></i>
+        </div>
         <div><img id="volumeOff" class="volume-off" src="pic/music-off.png" alt=""></div>
+        <div class="popup">
+            <i class="fa fa-check popuptext" id="myPopup" aria-hidden="true"></i>
+        </div>
     </div>
 
     <div class="right">
@@ -50,7 +56,7 @@
 
     <div id="timeSliderModal">
         <div class="book-time-slider">
-            <input type="range" min="15" step="15" max="60" value="15" class="time-slider" id="myRange">
+            <input type="range" min="1" step="15" max="60" value="15" class="time-slider" id="myRange">
             <div id="time-value" class="text-center text-white"></div>
             <button onclick="bookTimeNow()" class="btn btn-light book-meeting mt-3">Foglalás</button>
             <button onclick="cancelBooking()" class="btn btn-light cancel-meeting mt-3">X</button>
@@ -65,7 +71,7 @@
 
     <div id="volumeModal">
         <div class="volume-slider-container">
-            <input type="range" min="1" max="100" value="10" class="volume-slider" id="myVolumeRange">
+            <input type="range" min="1" max="100" value="15" class="volume-slider" id="myVolumeRange">
 
         </div>
     </div>
@@ -107,5 +113,4 @@
 <script src="js/changeroom.js"></script>
 <script src="js/easterEgg.js"></script>
 <script src="js/jquery.patternlock.js"></script>
-
 </html>

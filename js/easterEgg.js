@@ -1,7 +1,6 @@
 let counter = 0;
-let roomName = document.querySelector('.room-name');
 
-roomName.onclick = function () {
+roomNameDiv.onclick = function () {
     counter++;
     if (counter === 2) {
         $('#gameModal').modal('show');

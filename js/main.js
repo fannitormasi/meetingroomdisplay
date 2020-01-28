@@ -1,11 +1,21 @@
-let x;
+let fetchInterval;
+let colorIfOccupiedInterval;
 let currentDateDiv = document.querySelector('.current-date');
 
 fetchData();
-x = setInterval(fetchData, 1000);
+fetchInterval = setInterval(fetchData, 60000);
 
 showCurrentTime()
 setInterval(showCurrentTime, 1000);
+
+setTimeout(() => {
+    createTableWithUpcomingMeetings(allData)
+}, 1000);
+
+colorIfOccupiedInterval = setInterval(() => {
+    colourIfOccupied(allData, roomName)
+}, 1000);
+
 let occupied = false;
 let allData;
 let noMeetingToday = true;
@@ -19,28 +29,28 @@ let bookTimeSlider = document.querySelector('.book-time-slider');
 let bookTimeButton = document.querySelector('.book-time-btn');
 let tableContainer = document.querySelector('.table-container');
 let finishMeetingButton = document.querySelector('.finish-meeting');
-let adHocMeetingDiv = document.querySelector('ad-hoc-meeting');
+let adHocMeetingDiv = document.querySelector('.ad-hoc-meeting');
 let url = window.location.href;
-let param = url.split('location=')[1];
+let roomName = url.split('location=')[1];
 let timeSliderModal = document.getElementById("timeSliderModal");
 let volumeModal = document.getElementById("volumeModal");
-
-if (finishMeetingButton !== null) {
-    finishMeetingButton.style.display = "none";
-}
-
-if (adHocMeetingDiv !== null) {
-    adHocMeetingDiv.style.display = "none";
-}
-if (bookTimeSlider !== null) {
-    bookTimeSlider.style.display = "none";
-}
-
 let table = document.createElement('table');
 let thead = document.createElement('thead');
 let tbody = document.createElement('tbody');
 let trHead = document.createElement('tr');
 let trBody;
+let nextMeeting;
+let currentMeeting;
+let timeUntilCurrentMeetingEnd;
+
+if (finishMeetingButton !== null) {
+    finishMeetingButton.style.display = "none";
+}
+
+if (bookTimeSlider !== null) {
+    bookTimeSlider.style.display = "none";
+}
+
 
 function fetchData() {
     let url = "http://10.11.10.16:1880/meetingroomdata";
@@ -51,30 +61,27 @@ function fetchData() {
         .then(function (jsonData) {
             allData = jsonData;
             createBaseProperties(jsonData);
+            nextMeeting = getNextMeeting(jsonData, roomName)
+            currentMeeting = getCurrentMeeting(jsonData, roomName);
+            getTimeUntilCurrentMeetingEnd(currentMeeting);
         });
 }
 
-setTimeout(() => {
-    createTableWithUpcomingMeetings(allData)
-}, 2000);
-
 function createBaseProperties(jsonData) {
-    let currentTime = new Date();
     parseTimestamp(jsonData);
     sortDataByDate(jsonData);
-    colourIfOccupied(jsonData, currentTime, param);
 
     for (let i = 0; i < jsonData.length; i++) {
-        if (param === 'kortargyalo') {
+        if (roomName === 'kortargyalo') {
             roomNameDiv.innerHTML = 'KŐR TÁRGYALÓ'
         }
-        if (param === 'pikktargyalo') {
+        if (roomName === 'pikktargyalo') {
             roomNameDiv.innerHTML = 'PIKK TÁRGYALÓ'
         }
-        if (param === 'trefftargyalo') {
+        if (roomName === 'trefftargyalo') {
             roomNameDiv.innerHTML = 'TREFF TÁRGYALÓ'
         }
-        if (param === 'karotargyalo') {
+        if (roomName === 'karotargyalo') {
             roomNameDiv.innerHTML = 'KÁRÓ TÁRGYALÓ'
         }
         if (jsonData[i].Location === 'ExchangeControllRecord') {
@@ -83,49 +90,60 @@ function createBaseProperties(jsonData) {
     }
 }
 
+function getTimeUntilCurrentMeetingEnd(currentMeeting) {
+    if (currentMeeting !== undefined) {
+        let currentMeetingEnd = currentMeeting.End;
+        let diff = (new Date(currentMeetingEnd).getTime() - new Date().getTime()) / 1000;
+        timeUntilCurrentMeetingEnd = Math.round(diff);
+    } else {
+        timeUntilCurrentMeetingEnd = 1800;
+    }
+}
+
 function createTableWithUpcomingMeetings(jsonData) {
-    let currentTime = new Date();
-    noMeetingToday = true;
-    let keys = Object.keys(jsonData[0]);
-    tableContainer.innerHTML = '';
+    if (jsonData) {
+        noMeetingToday = true;
+        let keys = Object.keys(jsonData[0]);
+        tableContainer.innerHTML = '';
 
-    createHeader(jsonData, trHead);
+        createHeader(jsonData, trHead);
 
-    // fill out the table with values
-    for (let i = 0; i < jsonData.length; i++) {
-        //show only what meeting is happening later
-        if (new Date(jsonData[i].End) < currentTime) {
-            continue;
-        } else {
-            trBody = document.createElement('tr');
-            if (defineUrlParam(jsonData[i].Location) === param) {
-                noMeetingToday = false;
-                fillTableWithData(jsonData[i], keys, trBody, i);
-                tbody.appendChild(trBody);
+        // fill out the table with values
+        for (let i = 0; i < jsonData.length; i++) {
+            //show only what meeting is happening later
+            if (new Date(jsonData[i].End) < new Date()) {
+                continue;
+            } else {
+                trBody = document.createElement('tr');
+                if (defineUrlParam(jsonData[i].Location) === roomName) {
+                    noMeetingToday = false;
+                    fillTableWithData(jsonData[i], keys, trBody, i);
+                    tbody.appendChild(trBody);
+                }
             }
         }
-    }
-    if (noMeetingToday) {
-        let div = document.createElement('h3');
-        div.setAttribute('class', 'text-white mt-5 pt-5 no-meetings')
-        div.innerText = 'Nincs több meeting a mai napon'
-        tableContainer.appendChild(div);
+        if (noMeetingToday) {
+            let div = document.createElement('h3');
+            div.setAttribute('class', 'text-white mt-5 pt-5 no-meetings')
+            div.innerText = 'Nincs több meeting a mai napon'
+            tableContainer.appendChild(div);
 
-        conditionDiv.innerHTML = 'SZABAD';
-        body.setAttribute('class', 'colour-div free');
-        countDownDiv.innerHTML = '';
-        table.style.display = "none";
-        if (bookTimeButton !== null) {
-            bookTimeButton.style.display = "block";
+            conditionDiv.innerHTML = 'SZABAD';
+            body.setAttribute('class', 'colour-div free');
+            countDownDiv.innerHTML = '';
+            table.style.display = "none";
+            if (bookTimeButton !== null) {
+                bookTimeButton.style.display = "block";
+            }
+            if (finishMeetingButton !== null) {
+                finishMeetingButton.style.display = "none";
+            }
         }
-        if (finishMeetingButton !== null) {
-            finishMeetingButton.style.display = "none";
-        }
+        thead.appendChild(trHead);
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        tableContainer.appendChild(table);
     }
-    thead.appendChild(trHead);
-    table.appendChild(thead);
-    table.appendChild(tbody);
-    tableContainer.appendChild(table);
 }
 
 function fillTableWithData(data, header, parentElement, i) {
@@ -198,16 +216,16 @@ function sortDataByDate(data) {
     }
 }
 
-function colourIfOccupied(data, currentTime, room) {
+function colourIfOccupied(data, room) {
     for (let i = 0; i < data.length; i++) {
         if (defineUrlParam(data[i].Location) === room) {
             let startDate = new Date(data[i].Start);
             let endDate = new Date(data[i].End);
 
-            if ((currentTime >= startDate && currentTime <= endDate)) {
+            if ((new Date() >= startDate && new Date() <= endDate)) {
+                showCurrentMeeting();
                 stop_screensaver();
                 body.setAttribute('class', 'colour-div occupied');
-                showCurrentMeeting(data, room);
                 conditionDiv.innerHTML = 'FOGLALT';
                 if (bookTimeButton !== null) {
                     bookTimeButton.style.display = "none";
@@ -215,12 +233,12 @@ function colourIfOccupied(data, currentTime, room) {
                 if (finishMeetingButton !== null) {
                     finishMeetingButton.style.display = "none";
                 }
-                countDownUntilTheEndOfCurrentMeeting(data, currentTime, room);
+                countDownUntilTheEndOfCurrentMeeting();
                 occupied = true;
                 break;
             } else {
                 body.setAttribute('class', 'colour-div free')
-                showNextMeeting(data, room);
+                showNextMeeting();
                 conditionDiv.innerHTML = 'SZABAD';
                 if (bookTimeButton !== null) {
                     bookTimeButton.style.display = "block";
@@ -236,11 +254,11 @@ function colourIfOccupied(data, currentTime, room) {
     }
 }
 
-function getNextMeeting(data, currentTime, room) {
+function getNextMeeting(data, room) {
     let nextMeetingData;
     for (let i = 0; i < data.length; i++) {
         if (defineUrlParam(data[i].Location) === room) {
-            if (new Date(data[i].Start).getTime() > currentTime.getTime()) {
+            if (new Date(data[i].Start).getTime() > new Date().getTime()) {
                 nextMeetingData = data[i];
                 break;
             } else {
@@ -251,11 +269,11 @@ function getNextMeeting(data, currentTime, room) {
     return nextMeetingData;
 }
 
-function getCurrentMeeting(data, currentTime, room) {
+function getCurrentMeeting(data, room) {
     let currentMeeting;
     for (let i = 0; i < data.length; i++) {
         if (defineUrlParam(data[i].Location) === room) {
-            if ((currentTime >= new Date(data[i].Start).getTime() && currentTime <= new Date(data[i].End).getTime())) {
+            if ((new Date() >= new Date(data[i].Start).getTime() && new Date() <= new Date(data[i].End).getTime())) {
                 currentMeeting = data[i];
                 break;
             } else {
@@ -278,20 +296,19 @@ function createHeader(data, parent) {
     }
 }
 
-function showNextMeeting(data, room) {
-    let nextMeetingData = getNextMeeting(data, new Date(), room);
+function showNextMeeting() {
     nextOrCurrentMeetingDiv.innerHTML = '';
-    if (nextMeetingData === undefined) {
+    if (nextMeeting === undefined) {
         return;
-    } else if (defineUrlParam(nextMeetingData.Location) === room) {
+    } else {
         let title = document.createElement('div');
         title.innerHTML = 'KÖVETKEZŐ MEETING'
         let pTime = document.createElement('p');
-        pTime.innerHTML = new Date(nextMeetingData.Start).toLocaleTimeString() + ' - ' + new Date(nextMeetingData.End).toLocaleTimeString();
+        pTime.innerHTML = new Date(nextMeeting.Start).toLocaleTimeString() + ' - ' + new Date(nextMeeting.End).toLocaleTimeString();
         pTime.setAttribute('class', 'next-meeting-p');
 
         let pOrg = document.createElement('p');
-        pOrg.innerHTML = 'Szervező: ' + nextMeetingData.Organizer;
+        pOrg.innerHTML = 'Szervező: ' + nextMeeting.Organizer;
         pOrg.setAttribute('class', 'next-meeting-org');
 
         nextOrCurrentMeetingDiv.appendChild(title)
@@ -300,34 +317,30 @@ function showNextMeeting(data, room) {
     }
 }
 
-function showCurrentMeeting(data, room) {
-    let currentMeeting = getCurrentMeeting(data, new Date(), room);
+function showCurrentMeeting() {
     nextOrCurrentMeetingDiv.innerHTML = '';
     if (currentMeeting !== undefined) {
-        if (defineUrlParam(currentMeeting.Location) === room) {
-            let title = document.createElement('div');
-            title.innerHTML = 'AKTUÁLIS MEETING:'
-            let pTime = document.createElement('p');
-            pTime.innerHTML = new Date(currentMeeting.Start).toLocaleTimeString() + ' - ' + new Date(currentMeeting.End).toLocaleTimeString();
-            pTime.setAttribute('class', 'next-meeting-p');
+        let title = document.createElement('div');
+        title.innerHTML = 'AKTUÁLIS MEETING:'
+        let pTime = document.createElement('p');
+        pTime.innerHTML = new Date(currentMeeting.Start).toLocaleTimeString() + ' - ' + new Date(currentMeeting.End).toLocaleTimeString();
+        pTime.setAttribute('class', 'next-meeting-p');
 
-            let pOrg = document.createElement('p');
-            pOrg.innerHTML = 'Szervező: ' + currentMeeting.Organizer;
-            pOrg.setAttribute('class', 'next-meeting-org');
+        let pOrg = document.createElement('p');
+        pOrg.innerHTML = 'Szervező: ' + currentMeeting.Organizer;
+        pOrg.setAttribute('class', 'next-meeting-org');
 
-            nextOrCurrentMeetingDiv.appendChild(title)
-            nextOrCurrentMeetingDiv.appendChild(pTime)
-            nextOrCurrentMeetingDiv.appendChild(pOrg)
-        }
+        nextOrCurrentMeetingDiv.appendChild(title)
+        nextOrCurrentMeetingDiv.appendChild(pTime)
+        nextOrCurrentMeetingDiv.appendChild(pOrg)
     }
 }
 
-function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
+function countDownUntilTheEndOfCurrentMeeting() {
     countDownDiv.innerHTML = '';
-    let currentMeeting = getCurrentMeeting(data, currentTime, room);
     if (currentMeeting !== undefined) {
         let currentMeetingEnd = new Date(currentMeeting.End);
-        let diff = (currentMeetingEnd.getTime() - currentTime.getTime()) / 1000;
+        let diff = (currentMeetingEnd.getTime() - new Date().getTime()) / 1000;
         let hours;
         let seconds;
 
@@ -352,10 +365,15 @@ function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
         if (seconds < 10) {
             seconds = '0' + seconds;
         }
-        if (hours.toLocaleString() === "00" && minutes.toLocaleString() === "00" && seconds.toLocaleString() === "00") {
-            window.location.reload();
+        if (seconds === '00') {
+            minutes++;
+        }
+        if (hours.toLocaleString() === "00" && minutes.toLocaleString() === "00" && seconds.toLocaleString() === "01") {
+            countDownDiv.innerHTML = '';
+            window.location.reload(true);
             fetchData();
         } else {
+            adHocMeetingDiv.innerHTML = '';
             bookTimeSlider.setAttribute('class', '');
             countDownDiv.innerHTML = hours.toLocaleString() + ' : ' + minutes.toLocaleString() + ' : ' + seconds.toLocaleString();
         }
@@ -363,13 +381,12 @@ function countDownUntilTheEndOfCurrentMeeting(data, currentTime, room) {
 }
 
 function bookTimeNow() {
-    clearInterval(x);
+    clearInterval(fetchInterval);
+    clearInterval(colorIfOccupiedInterval)
     let slider = document.querySelector(".book-time-slider");
     let output = document.getElementById('myRange');
-    let room = window.location.href.split('location=')[1];
     let currentDate = new Date()
     let finishTime = new Date(currentDate.getTime() + output.value * 60000);
-    let nextMeeting = getNextMeeting(allData, new Date(), room);
 
     if (nextMeeting !== undefined && (finishTime > new Date(nextMeeting.Start))) {
         let modal = document.getElementById('myModal');
@@ -394,26 +411,27 @@ function bookTimeNow() {
         if (finishMeetingButton !== null) {
             finishMeetingButton.style.display = 'block';
         }
-        if (adHocMeetingDiv !== null) {
-            adHocMeetingDiv.style.display = 'block';
-        }
         if (noMeetingToday) {
             nextOrCurrentMeetingDiv.innerHTML = '';
         }
-
         let div = document.querySelector('.ad-hoc-meeting');
-        div.innerHTML = 'AD HOC MEETING A KÖVETKEZŐ IDŐPONTIG';
+        div.innerText = 'AD HOC MEETING A KÖVETKEZŐ IDŐPONTIG';
         let timeUntilAdHocMeetingEnd = finishTime.toLocaleTimeString();
         let array = timeUntilAdHocMeetingEnd.split(':');
         timeUntilAdHocMeetingEnd = array[0] + ':' + array[1];
         countDownDiv.innerHTML = timeUntilAdHocMeetingEnd;
-
         setTimeout(changeFetchLoop, output.value * 60000);
     }
 }
 
 function changeFetchLoop() {
-    x = setInterval(fetchData, 10000);
+    fetchData();
+    adHocMeetingDiv.innerHTML = '';
+    countDownDiv.innerHTML = '';
+    fetchInterval = setInterval(fetchData, 60000);
+    colorIfOccupiedInterval = setInterval(() => {
+        colourIfOccupied(allData, roomName);
+    }, 1000);
 }
 
 function finishMeeting() {
@@ -493,3 +511,9 @@ $(document).ready(function () {
         }, 7200000); // 2 hours
     });
 });
+
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+window.oncontextmenu = function () {
+    return false;
+}
