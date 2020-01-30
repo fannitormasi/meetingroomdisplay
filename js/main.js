@@ -1,6 +1,7 @@
 let fetchInterval;
 let colorIfOccupiedInterval;
 let currentDateDiv = document.querySelector('.current-date');
+let rpi = 0;
 
 fetchData();
 fetchInterval = setInterval(fetchData, 60000);
@@ -8,13 +9,9 @@ fetchInterval = setInterval(fetchData, 60000);
 showCurrentTime()
 setInterval(showCurrentTime, 1000);
 
-setTimeout(() => {
-    createTableWithUpcomingMeetings(allData)
-}, 1000);
-
 colorIfOccupiedInterval = setInterval(() => {
     colourIfOccupied(allData, roomName)
-}, 1000);
+}, 60000);
 
 let occupied = false;
 let allData;
@@ -64,6 +61,7 @@ function fetchData() {
             nextMeeting = getNextMeeting(jsonData, roomName)
             currentMeeting = getCurrentMeeting(jsonData, roomName);
             getTimeUntilCurrentMeetingEnd(currentMeeting);
+            colourIfOccupied(allData, roomName);
         });
 }
 
@@ -88,6 +86,7 @@ function createBaseProperties(jsonData) {
             continue;
         }
     }
+    returnRpiByRoom(roomName);
 }
 
 function getTimeUntilCurrentMeetingEnd(currentMeeting) {
@@ -101,10 +100,12 @@ function getTimeUntilCurrentMeetingEnd(currentMeeting) {
 }
 
 function createTableWithUpcomingMeetings(jsonData) {
+    trHead.innerHTML = '';
+    tbody.innerText = '';
+
     if (jsonData) {
         noMeetingToday = true;
         let keys = Object.keys(jsonData[0]);
-        tableContainer.innerHTML = '';
 
         createHeader(jsonData, trHead);
 
@@ -146,6 +147,27 @@ function createTableWithUpcomingMeetings(jsonData) {
     }
 }
 
+function returnRpiByRoom(roomName) {
+    switch (roomName) {
+        case 'pikktargyalo':
+            rpi = 1;
+            break;
+        case 'karotargyalo':
+            rpi = 2;
+            break;
+        case 'kortargyalo':
+            rpi = 3;
+            break;
+        case 'trefftargyalo':
+            rpi = 4;
+            break;
+    }
+}
+
+setTimeout(() => {
+    createTableWithUpcomingMeetings(allData)
+}, 1000);
+
 function fillTableWithData(data, header, parentElement, i) {
     for (let j = 0; j < header.length; j++) {
         if (header[j] === 'Cancelled') {
@@ -158,22 +180,24 @@ function fillTableWithData(data, header, parentElement, i) {
 }
 
 function defineUrlParam(url) {
-    let charsWith = ['á', 'é', 'í', 'ú', 'ü', 'ű', 'ó', 'ö', 'ő'];
-    let charsWithout = ['a', 'e', 'i', 'u', 'u', 'u', 'o', 'o', 'o'];
-    let newUrl = url.toLowerCase();
-    for (let i = 0; i < newUrl.length; i++) {
-        if (newUrl[i] === ' ') {
-            newUrl = newUrl.replace(newUrl[i], '');
-        }
-    }
-    for (let i = 0; i < newUrl.length; i++) {
-        for (let j = 0; j < charsWith.length; j++) {
-            if (newUrl[i] === charsWith[j]) {
-                newUrl = newUrl.replace(newUrl[i], charsWithout[j])
+    if (url != null) {
+        let charsWith = ['á', 'é', 'í', 'ú', 'ü', 'ű', 'ó', 'ö', 'ő'];
+        let charsWithout = ['a', 'e', 'i', 'u', 'u', 'u', 'o', 'o', 'o'];
+        let newUrl = url.toLowerCase();
+        for (let i = 0; i < newUrl.length; i++) {
+            if (newUrl[i] === ' ') {
+                newUrl = newUrl.replace(newUrl[i], '');
             }
         }
+        for (let i = 0; i < newUrl.length; i++) {
+            for (let j = 0; j < charsWith.length; j++) {
+                if (newUrl[i] === charsWith[j]) {
+                    newUrl = newUrl.replace(newUrl[i], charsWithout[j])
+                }
+            }
+        }
+        return newUrl;
     }
-    return newUrl;
 }
 
 function showCurrentTime() {
@@ -225,6 +249,7 @@ function colourIfOccupied(data, room) {
             if ((new Date() >= startDate && new Date() <= endDate)) {
                 showCurrentMeeting();
                 stop_screensaver();
+                colourLed('led', rpi, true)
                 body.setAttribute('class', 'colour-div occupied');
                 conditionDiv.innerHTML = 'FOGLALT';
                 if (bookTimeButton !== null) {
@@ -239,6 +264,7 @@ function colourIfOccupied(data, room) {
             } else {
                 body.setAttribute('class', 'colour-div free')
                 showNextMeeting();
+                colourLed('led', rpi, false);
                 conditionDiv.innerHTML = 'SZABAD';
                 if (bookTimeButton !== null) {
                     bookTimeButton.style.display = "block";
@@ -367,6 +393,9 @@ function countDownUntilTheEndOfCurrentMeeting() {
         }
         if (seconds === '00') {
             minutes++;
+            if (minutes < 10) {
+                minutes = '0' + minutes;
+            }
         }
         if (hours.toLocaleString() === "00" && minutes.toLocaleString() === "00" && seconds.toLocaleString() === "01") {
             countDownDiv.innerHTML = '';
@@ -404,6 +433,7 @@ function bookTimeNow() {
         timeSliderModal.classList.remove('d-block');
         slider.classList.remove('b-block')
         conditionDiv.innerHTML = 'FOGLALT';
+        colourLed('led', rpi, true)
         body.setAttribute('class', 'colour-div occupied');
         if (bookTimeButton !== null) {
             bookTimeButton.style.display = 'none';
@@ -435,10 +465,12 @@ function changeFetchLoop() {
 }
 
 function finishMeeting() {
+    colourLed('led', rpi, false)
     window.location.reload();
 }
 
 function showMeetings() {
+    createTableWithUpcomingMeetings(allData);
     let modal = document.getElementById("tableModal");
     modal.setAttribute('style', 'display: block;');
     modal.onclick = function () {
@@ -461,7 +493,7 @@ function toggleBookTime() {
 }
 
 function cancelBooking() {
-    timeSliderModal.classList.remove('d-block')
+    timeSliderModal.classList.remove('d-block');
 }
 
 function refresh() {

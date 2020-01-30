@@ -47,6 +47,7 @@
     animation-duration: 1s;
     animation-name: fadeIn;
     z-index: 100;
+    cursor: grabbing;
 }
 
 table {
@@ -186,6 +187,7 @@ body {
     width: 45%;
     animation-duration: 0.5s;
     animation-name: fadeIn;
+    cursor: grabbing;
 }
 
 .book-meeting {
@@ -219,6 +221,10 @@ body {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
+#tableModal {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
 .time-slider {
     animation-duration: 0.5s;
     animation-name: fadeIn;
@@ -231,6 +237,7 @@ body {
     -webkit-transition: .5s;
     transition: opacity .2s;
     width: 100%;
+    cursor: grabbing;
     appearance: none;
 }
 
@@ -432,7 +439,7 @@ body {
 }
 
 
-.popup, .popup-nexttrack {
+.popup, .popup-nexttrack, .popup-easter-egg {
     position: fixed;
     display: inline-block;
     cursor: pointer;
@@ -443,13 +450,14 @@ body {
 }
 
 /* The actual popup */
-.popup .popuptext, .popup-nexttrack .popuptext {
+.popup .popuptext, .popup-nexttrack .popuptext, .popup-easter-egg .popuptext {
     visibility: hidden;
-    width: 25px;
+    width: 30px;
     background-color: whitesmoke;
     color: #839973;
     text-align: center;
-    border-radius: 30px;
+    border: #839973 2px solid;
+    border-radius: 20px;
     padding: 5px 0;
     position: fixed;
     z-index: 1;
@@ -462,10 +470,10 @@ body {
 }
 
 /* Popup arrow */
-.popup .popuptext::after, .popup-nexttrack .popuptext::after {
+.popup .popuptext::after, .popup-nexttrack .popuptext::after, .popup-easter-egg .popuptext::after {
     content: "";
     position: absolute;
-    top: 100%;
+    top: 107%;
     left: 50%;
     margin-left: -5px;
     border-width: 5px;
@@ -491,3 +499,6 @@ body {
     to {opacity:1 ;}
 }
 
+body {
+    cursor: pointer;
+}

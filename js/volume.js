@@ -97,6 +97,7 @@ function volumeOff(action, id, vol, timeout) {
 function sendJson(DeviceAction) {
     divRep("wsstatus_ls", JSON.stringify(DeviceAction));
     conn.send(JSON.stringify(DeviceAction));
+    console.log(DeviceAction);
 }
 
 
@@ -171,4 +172,25 @@ if (roomName === "karotargyalo") {
             popup.classList.toggle("show")
         }, 1000)
     }
+}
+
+function sendLed(action, rpi, reserved) {
+    console.log(reserved);
+    let color = "0,255,0";
+    if (reserved) {
+        color = "255,0,0";
+    } else {
+        color = "0,255,0";
+    }
+    let DeviceAction = {
+        action: action,
+        rpi: rpi,
+        color: color
+    };
+    console.log(DeviceAction);
+    sendJson(DeviceAction);
+}
+
+window.colourLed = function (action, roomId, reserved) {
+    sendLed(action, roomId, reserved);
 }
