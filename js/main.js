@@ -8,10 +8,6 @@ fetchInterval = setInterval(fetchData, 60000);
 showCurrentTime()
 setInterval(showCurrentTime, 1000);
 
-setTimeout(() => {
-    createTableWithUpcomingMeetings(allData)
-}, 1000);
-
 colorIfOccupiedInterval = setInterval(() => {
     colourIfOccupied(allData, roomName)
 }, 1000);
@@ -146,6 +142,10 @@ function createTableWithUpcomingMeetings(jsonData) {
     }
 }
 
+setTimeout(() => {
+    createTableWithUpcomingMeetings(allData)
+}, 1000);
+
 function fillTableWithData(data, header, parentElement, i) {
     for (let j = 0; j < header.length; j++) {
         if (header[j] === 'Cancelled') {
@@ -158,22 +158,24 @@ function fillTableWithData(data, header, parentElement, i) {
 }
 
 function defineUrlParam(url) {
-    let charsWith = ['á', 'é', 'í', 'ú', 'ü', 'ű', 'ó', 'ö', 'ő'];
-    let charsWithout = ['a', 'e', 'i', 'u', 'u', 'u', 'o', 'o', 'o'];
-    let newUrl = url.toLowerCase();
-    for (let i = 0; i < newUrl.length; i++) {
-        if (newUrl[i] === ' ') {
-            newUrl = newUrl.replace(newUrl[i], '');
-        }
-    }
-    for (let i = 0; i < newUrl.length; i++) {
-        for (let j = 0; j < charsWith.length; j++) {
-            if (newUrl[i] === charsWith[j]) {
-                newUrl = newUrl.replace(newUrl[i], charsWithout[j])
+    if (url != null) {
+        let charsWith = ['á', 'é', 'í', 'ú', 'ü', 'ű', 'ó', 'ö', 'ő'];
+        let charsWithout = ['a', 'e', 'i', 'u', 'u', 'u', 'o', 'o', 'o'];
+        let newUrl = url.toLowerCase();
+        for (let i = 0; i < newUrl.length; i++) {
+            if (newUrl[i] === ' ') {
+                newUrl = newUrl.replace(newUrl[i], '');
             }
         }
+        for (let i = 0; i < newUrl.length; i++) {
+            for (let j = 0; j < charsWith.length; j++) {
+                if (newUrl[i] === charsWith[j]) {
+                    newUrl = newUrl.replace(newUrl[i], charsWithout[j])
+                }
+            }
+        }
+        return newUrl;
     }
-    return newUrl;
 }
 
 function showCurrentTime() {
@@ -367,6 +369,7 @@ function countDownUntilTheEndOfCurrentMeeting() {
         }
         if (seconds === '00') {
             minutes++;
+            minutes = '0' + minutes;
         }
         if (hours.toLocaleString() === "00" && minutes.toLocaleString() === "00" && seconds.toLocaleString() === "01") {
             countDownDiv.innerHTML = '';
