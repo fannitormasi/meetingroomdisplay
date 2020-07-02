@@ -4,7 +4,7 @@ let currentDateDiv = document.querySelector('.current-date');
 let rpi = 0;
 
 fetchData();
-fetchInterval = setInterval(fetchData, 60000);
+fetchInterval = setInterval(fetchData, 1000);
 
 showCurrentTime()
 setInterval(showCurrentTime, 1000);
@@ -39,6 +39,7 @@ let trBody;
 let nextMeeting;
 let currentMeeting;
 let timeUntilCurrentMeetingEnd;
+let noMeetingHeader = document.createElement('h3');
 
 if (finishMeetingButton !== null) {
     finishMeetingButton.style.display = "none";
@@ -124,10 +125,9 @@ function createTableWithUpcomingMeetings(jsonData) {
             }
         }
         if (noMeetingToday) {
-            let div = document.createElement('h3');
-            div.setAttribute('class', 'text-white mt-5 pt-5 no-meetings')
-            div.innerText = 'Nincs több meeting a mai napon'
-            tableContainer.appendChild(div);
+            noMeetingHeader.setAttribute('class', 'text-white mt-5 pt-5 no-meetings')
+            noMeetingHeader.innerText = 'Nincs több meeting a mai napon'
+            tableContainer.appendChild(noMeetingHeader);
 
             conditionDiv.innerHTML = 'SZABAD';
             body.setAttribute('class', 'colour-div free');
