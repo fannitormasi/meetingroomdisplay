@@ -7,15 +7,6 @@ conn.onopen = function () {
 
 conn.onmessage = function (e) {
     divRep("wsstatus_lr", HtmlEncode(e.data));
-    let msg = JSON.parse(e.data);
-    if (msg.action === VOLUME_CHANGE) {
-        if (roomName === 'karotargyalo' && msg.id === 'Csoki') {
-            volumeSlider.value = msg.percent * 3;
-        }
-        if (roomName === 'pikktargyalo' && msg.id === 'Etkezo') {
-            volumeSlider.value = msg.percent * 3;
-        }
-    }
 };
 
 let updateWSStatus_tmr = setInterval(updateWSStatus, 1000);
@@ -66,8 +57,6 @@ function sendVol(action, id, vol, timeout) {
         timeout: timeout
     };
     sendJson(DeviceAction);
-
-    console.log(DeviceAction);
 }
 
 function playNextTrack() {
@@ -97,7 +86,6 @@ function volumeOff(action, id, vol, timeout) {
 function sendJson(DeviceAction) {
     divRep("wsstatus_ls", JSON.stringify(DeviceAction));
     conn.send(JSON.stringify(DeviceAction));
-    console.log(DeviceAction);
 }
 
 
@@ -175,7 +163,6 @@ if (roomName === "karotargyalo") {
 }
 
 function sendLed(action, rpi, reserved) {
-    console.log(reserved);
     let color = "0,255,0";
     if (reserved) {
         color = "255,0,0";
@@ -187,7 +174,6 @@ function sendLed(action, rpi, reserved) {
         rpi: rpi,
         color: color
     };
-    console.log(DeviceAction);
     sendJson(DeviceAction);
 }
 

@@ -55,6 +55,7 @@ body {
 }
 
 table {
+    font-size: 14px;
     margin: auto;
     width: 700px;
     border-radius: 1em;
@@ -135,16 +136,18 @@ body {
 .current-date {
     font-family: 'Montserrat', sans-serif;
     color: white;
-    font-size: 13px;
+    margin-top: 30px;
+    font-size: 22px;
 }
 
 .current-time-div {
-    font-size: 50px;
+    height: 50px;
+    font-size: 40px;
     font-family: monospace;
 }
 
 .next-meeting-p {
-    font-size: 22px !important;
+    font-size: 24px !important;
     font-weight: bold;
 }
 
@@ -154,7 +157,7 @@ body {
 
 .room-name {
     text-align: left;
-    font-size: 30px;
+    font-size: 36px;
     margin: 50px 25px 25px 25px;
     font-weight: bold;
     font-family: 'Montserrat', sans-serif;
@@ -261,8 +264,8 @@ body {
     animation-name: fadeIn;
     transform: rotate(-90deg);
     position: absolute;
-    top: 365px;
-    left: 75px;
+    top: 275px;
+    left: 10px;
     -webkit-appearance: searchfield;
     appearance: none;
     height: 3px;
@@ -271,15 +274,15 @@ body {
     outline: darkgrey;
     -webkit-transition: .5s;
     transition: opacity .2s;
-    width: 90px;
+    width: 250px;
 }
 
 .volume-slider::-webkit-slider-thumb, .time-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     border-radius: 50%;
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
     background: rosybrown;
     border: 5px solid whitesmoke;
     cursor: grabbing
@@ -292,7 +295,7 @@ body {
     color: rgb(50, 50, 50);
     border-radius: 25px;
     margin-left: 55px;
-    margin-top: 35px;
+    margin-top: 15px;
 }
 
 .ad-hoc-meeting {
@@ -377,10 +380,10 @@ iframe {
 
 .meetings, .volume, .volume-off, .change-music, .next-track, .change-music {
     position: absolute;
-    top: 420px;
+    top: 410px;
     left: 7%;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
 }
 
 #all {
@@ -389,19 +392,19 @@ iframe {
 }
 
 .volume {
-    left: 21%;
+    left: 23%;
 }
 
 .next-track {
-    left: 45%;
+    left: 49%;
 }
 
 .volume-off {
-    left: 33%;
+    left: 36%;
 }
 
 .change-music {
-    left: 58%;
+    left: 62%;
     top: 423px;
     height: 35px;
     width: 35px;
@@ -413,10 +416,10 @@ iframe {
 }
 
 .refresh {
-    width: 15px;
+    width: 18px;
     position: absolute;
     margin-left: 200px;
-    margin-top: -30px;
+    margin-top: -100px;
 }
 
 #progress-bar {
@@ -465,12 +468,12 @@ body {
     padding: 5px 0;
     position: fixed;
     z-index: 1;
-    left: 165px;
-    top: 380px;
+    left: 185px;
+    top: 370px;
 }
 
 .popup-nexttrack .popuptext  {
-    left: 225px!important;
+    left: 245px!important;
 }
 
 /* Popup arrow */
@@ -505,4 +508,10 @@ body {
 
 body {
     cursor: pointer;
+}
+
+.em-logo {
+    position: absolute;
+    left: 668px;
+    top: 28px;
 }

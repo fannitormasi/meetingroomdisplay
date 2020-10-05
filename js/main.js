@@ -3,15 +3,27 @@ let colorIfOccupiedInterval;
 let currentDateDiv = document.querySelector('.current-date');
 let rpi = 0;
 
-fetchData();
-fetchInterval = setInterval(fetchData, 1000);
+
+window.onload = ((function () {
+    fetchData()
+}));
+
+fetchInterval = setInterval(fetchData, 60000);
 
 showCurrentTime()
 setInterval(showCurrentTime, 1000);
 
 colorIfOccupiedInterval = setInterval(() => {
     colourIfOccupied(allData, roomName)
-}, 60000);
+}, 1000);
+
+setInterval(() => {
+    if (occupied) {
+        colourLed('led', rpi, true)
+    } else {
+        colourLed('led', rpi, false)
+    }
+}, 1000);
 
 let occupied = false;
 let allData;
@@ -241,41 +253,40 @@ function sortDataByDate(data) {
 }
 
 function colourIfOccupied(data, room) {
-    for (let i = 0; i < data.length; i++) {
-        if (defineUrlParam(data[i].Location) === room) {
-            let startDate = new Date(data[i].Start);
-            let endDate = new Date(data[i].End);
-
-            if ((new Date() >= startDate && new Date() <= endDate)) {
-                showCurrentMeeting();
-                stop_screensaver();
-                colourLed('led', rpi, true)
-                body.setAttribute('class', 'colour-div occupied');
-                conditionDiv.innerHTML = 'FOGLALT';
-                if (bookTimeButton !== null) {
-                    bookTimeButton.style.display = "none";
+    if (data != undefined) {
+        for (let i = 0; i < data.length; i++) {
+            if (defineUrlParam(data[i].Location) === room) {
+                let startDate = new Date(data[i].Start);
+                let endDate = new Date(data[i].End);
+                if ((new Date() >= startDate && new Date() <= endDate)) {
+                    showCurrentMeeting();
+                    stop_screensaver();
+                    body.setAttribute('class', 'colour-div occupied');
+                    conditionDiv.innerHTML = 'FOGLALT';
+                    if (bookTimeButton !== null) {
+                        bookTimeButton.style.display = "none";
+                    }
+                    if (finishMeetingButton !== null) {
+                        finishMeetingButton.style.display = "none";
+                    }
+                    countDownUntilTheEndOfCurrentMeeting();
+                    occupied = true;
+                    break;
+                } else {
+                    body.setAttribute('class', 'colour-div free')
+                    showNextMeeting();
+                    conditionDiv.innerHTML = 'SZABAD';
+                    if (bookTimeButton !== null) {
+                        bookTimeButton.style.display = "block";
+                    }
+                    if (finishMeetingButton !== null) {
+                        finishMeetingButton.style.display = "none";
+                    }
+                    occupied = false;
                 }
-                if (finishMeetingButton !== null) {
-                    finishMeetingButton.style.display = "none";
-                }
-                countDownUntilTheEndOfCurrentMeeting();
-                occupied = true;
-                break;
             } else {
-                body.setAttribute('class', 'colour-div free')
-                showNextMeeting();
-                colourLed('led', rpi, false);
-                conditionDiv.innerHTML = 'SZABAD';
-                if (bookTimeButton !== null) {
-                    bookTimeButton.style.display = "block";
-                }
-                if (finishMeetingButton !== null) {
-                    finishMeetingButton.style.display = "none";
-                }
                 occupied = false;
             }
-        } else {
-            occupied = false;
         }
     }
 }
@@ -347,7 +358,7 @@ function showCurrentMeeting() {
     nextOrCurrentMeetingDiv.innerHTML = '';
     if (currentMeeting !== undefined) {
         let title = document.createElement('div');
-        title.innerHTML = 'AKTUÁLIS MEETING:'
+        title.innerHTML = 'AKTUÁLIS MEETING'
         let pTime = document.createElement('p');
         pTime.innerHTML = new Date(currentMeeting.Start).toLocaleTimeString() + ' - ' + new Date(currentMeeting.End).toLocaleTimeString();
         pTime.setAttribute('class', 'next-meeting-p');
@@ -433,7 +444,7 @@ function bookTimeNow() {
         timeSliderModal.classList.remove('d-block');
         slider.classList.remove('b-block')
         conditionDiv.innerHTML = 'FOGLALT';
-        colourLed('led', rpi, true)
+        occupied = true;
         body.setAttribute('class', 'colour-div occupied');
         if (bookTimeButton !== null) {
             bookTimeButton.style.display = 'none';
