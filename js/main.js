@@ -182,11 +182,15 @@ setTimeout(() => {
 
 function fillTableWithData(data, header, parentElement, i) {
     for (let j = 0; j < header.length; j++) {
-        if (header[j] === 'Cancelled') {
+        if (header[j] === 'Cancelled' || header[j] === 'Location') {
             continue;
         }
         let th = document.createElement('th');
-        th.innerHTML = data[header[j]];
+        if (header[j] === 'Start' || header[j] === 'End') {
+            th.innerHTML = data[header[j]].split(' ')[3];
+        } else {
+            th.innerHTML = data[header[j]];
+        }
         parentElement.appendChild(th);
     }
 }
@@ -324,11 +328,19 @@ function getCurrentMeeting(data, room) {
 
 function createHeader(data, parent) {
     for (let i = 0; i < Object.keys(data[0]).length; i++) {
-        if (Object.keys(data[0])[i] === 'Cancelled') {
+        if (Object.keys(data[0])[i] === 'Cancelled' || Object.keys(data[0])[i] === 'Location') {
             continue
         }
         let th = document.createElement('th');
-        th.innerHTML = Object.keys(data[0])[i];
+        if (Object.keys(data[0])[i] === 'Organizer') {
+            th.innerHTML = 'Szervező';
+        }
+        if (Object.keys(data[0])[i] === 'Start') {
+            th.innerHTML = 'Meeting kezdete';
+        }
+        if (Object.keys(data[0])[i] === 'End') {
+            th.innerHTML = 'Meeting vége';
+        }
         parent.appendChild(th);
     }
 }
@@ -441,10 +453,10 @@ function bookTimeNow() {
             modal.classList.remove('d-block');
         }
     } else {
+        occupied = true;
         timeSliderModal.classList.remove('d-block');
         slider.classList.remove('b-block')
         conditionDiv.innerHTML = 'FOGLALT';
-        occupied = true;
         body.setAttribute('class', 'colour-div occupied');
         if (bookTimeButton !== null) {
             bookTimeButton.style.display = 'none';
